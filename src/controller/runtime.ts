@@ -52,7 +52,7 @@ try {
 let srcDirectory = '';
 if (platform === 'Desktop') {
   // srcDirectory = '/Users/tedshaffer/Desktop/autotron';
-  srcDirectory = '/Users/tedshaffer/Desktop/autotron';
+  srcDirectory = '/Users/tedshaffer/Desktop/autotronMedia';
 } else {
   const process = require('process');
   process.chdir('/storage/sd');
