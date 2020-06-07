@@ -6,9 +6,19 @@ import isomorphicPath from 'isomorphic-path';
 import { ArSyncSpec, ArFileLUT, ArSyncSpecDownload, ArEventType } from '../type/runtime';
 import { HSM } from './hsm/HSM';
 import { PlayerHSM } from './hsm/playerHSM';
-import { BsBrightSignPlayerState, addUserVariable } from '../index';
+import {
+  BsBrightSignPlayerState,
+  // addUserVariable
+ } from '../index';
 import { Store } from 'redux';
-import { BsDmId, dmGetUserVariableIdsForSign, dmGetUserVariableById, DmcUserVariable } from '@brightsign/bsdatamodel';
+import {
+  BsDmId,
+  // dmGetUserVariableIdsForSign,
+  // dmGetUserVariableById,
+  // DmcUserVariable,
+  dmFilterDmState,
+  dmGetAssetItemById
+ } from '@brightsign/bsdatamodel';
 import { DmState } from '@brightsign/bsdatamodel';
 import { DmZone } from '@brightsign/bsdatamodel';
 
@@ -16,7 +26,8 @@ import {
   DmSignState,
   dmOpenSign,
   dmGetZonesForSign,
-  dmGetZoneById
+  dmGetZoneById,
+  dmGetAssetItemIdsForSign,
 } from '@brightsign/bsdatamodel';
 import { ZoneHSM } from './hsm/zoneHSM';
 import { MediaZoneHSM } from './hsm/mediaZoneHSM';
@@ -59,8 +70,14 @@ if (platform === 'Desktop') {
   srcDirectory = '';
 }
 
+const srcDir = '/Users/tedshaffer/Documents/BrightAuthor/baconPresentations/autotron';
+const srcPresentationName = 'autotronMedia';
+const srcFileName = srcPresentationName + '.bpfx';
+const srcFilePath: string = isomorphicPath.join(srcDir, srcFileName);
+console.log(srcFilePath);
+
 // import Registry from '@brightsign/registry';
-import { ZoneType } from '@brightsign/bscore';
+import { ZoneType, BsAssetId, BsAssetItem } from '@brightsign/bscore';
 import { TickerZoneHSM } from './hsm/tickerZoneHSM';
 // const registry: Registry = new Registry();
 // registry.read('networking', 'ru')
@@ -68,7 +85,7 @@ import { TickerZoneHSM } from './hsm/tickerZoneHSM';
 //   });
 
 let _autotronStore: Store<BsBrightSignPlayerState>;
-let _syncSpec: ArSyncSpec;
+// let _syncSpec: ArSyncSpec;
 let _poolAssetFiles: ArFileLUT;
 let _autoSchedule: any;
 
@@ -85,7 +102,7 @@ const upload = multer();
 // with this syntax, the file is uploaded to uploads/
 // const uploadManifest = multer({ dest: 'uploads/' })
 
-// with this syntax, the file information is available via req.files. 
+// with this syntax, the file information is available via req.files.
 // included is a buffer with the content of the upload
 const uploadManifest = multer();
 
@@ -145,13 +162,66 @@ export function tmpGetVideoElementRef(): any {
 }
 
 export function getRuntimeFiles(): Promise<void> {
+  return getPresentationRuntimeFiles();
+  // return getPublishedRuntimeFiles();
+}
+
+export function getPresentationRuntimeFiles(): Promise<void> {
+
+  _poolAssetFiles = {};
+
+  return fs.readFile(srcFilePath, 'utf8')
+    .then((fileStr: string) => {
+      const bpfxState: any = JSON.parse(fileStr);
+      const autoPlay: any = bpfxState.bsdm;
+      const signState = autoPlay as DmSignState;
+      _autotronStore.dispatch(dmOpenSign(signState));
+
+      const state = _autotronStore.getState();
+      const dmState = dmFilterDmState(state);
+
+      const assetIds: BsAssetId[] = dmGetAssetItemIdsForSign(dmState);
+
+      for (const assetId of assetIds) {
+        const assetItem: BsAssetItem | null = dmGetAssetItemById(dmState, { id: assetId });
+        if (!isNil(assetItem)) {
+          const filePath = isomorphicPath.join(assetItem.path, assetItem.name);
+          _poolAssetFiles[assetItem.name] = filePath;
+        }
+      }
+
+      const presentationToSchedule: any = {
+        name: srcPresentationName
+      };
+      const scheduledPresentation: any = {
+        allDayEveryDay: true,
+        presentationToSchedule
+      };
+      _autoSchedule = {
+        scheduledPresentations: [
+          scheduledPresentation
+        ]
+      };
+      console.log(_autoSchedule);
+
+      _hsmList = [];
+
+      // debugger;
+      return Promise.resolve();
+    });
+
+  // return Promise.resolve();
+}
+
+export function getPublishedRuntimeFiles(): Promise<void> {
   return getSyncSpec()
     .then((syncSpec: ArSyncSpec) => {
-      _syncSpec = syncSpec;
+      // _syncSpec = syncSpec;
       _poolAssetFiles = getPoolAssetFiles(syncSpec, getRootDirectory());
       return getAutoschedule(syncSpec, getRootDirectory());
     }).then((autoSchedule: any) => {
       _autoSchedule = autoSchedule;
+      // debugger;
       _hsmList = [];
       // launchHSM();
       return Promise.resolve();
@@ -309,37 +379,41 @@ export function getRootDirectory(): string {
 }
 
 function restartPlayback(presentationName: string): Promise<void> {
-
-  const rootPath = getRootDirectory();
-
-  // TEDTODO - only a single scheduled item is currently supported
-  const scheduledPresentation = _autoSchedule.scheduledPresentations[0];
-  const presentationToSchedule = scheduledPresentation.presentationToSchedule;
-
-  // TEDTODO - why does restartPlayback get a presentationName if it's also in the schedule?
-  // for switchPresentations?
-  presentationName = presentationToSchedule.name;
-
-  const autoplayFileName = presentationName + '.bml';
-
-  return getSyncSpecReferencedFile(autoplayFileName, _syncSpec, rootPath)
-    .then((bpfxState: any) => {
-      const autoPlay: any = bpfxState.bsdm;
-      const signState = autoPlay as DmSignState;
-      _autotronStore.dispatch(dmOpenSign(signState));
-
-      // populate user variables from the sign.
-      // set current values === default values for now
-      const bsdm: DmState = _autotronStore.getState().bsdm;
-      const userVariableIds: BsDmId[] = dmGetUserVariableIdsForSign(bsdm);
-      for (const userVariableId of userVariableIds) {
-        const userVariable = dmGetUserVariableById(bsdm, { id: userVariableId }) as DmcUserVariable;
-        _autotronStore.dispatch(addUserVariable(userVariableId, userVariable.defaultValue));
-      }
-
-      return Promise.resolve();
-    });
+  return Promise.resolve();
 }
+
+// function restartPlayback(presentationName: string): Promise<void> {
+
+//   const rootPath = getRootDirectory();
+
+//   // TEDTODO - only a single scheduled item is currently supported
+//   const scheduledPresentation = _autoSchedule.scheduledPresentations[0];
+//   const presentationToSchedule = scheduledPresentation.presentationToSchedule;
+
+//   // TEDTODO - why does restartPlayback get a presentationName if it's also in the schedule?
+//   // for switchPresentations?
+//   presentationName = presentationToSchedule.name;
+
+//   const autoplayFileName = presentationName + '.bml';
+
+//   return getSyncSpecReferencedFile(autoplayFileName, _syncSpec, rootPath)
+//     .then((bpfxState: any) => {
+//       const autoPlay: any = bpfxState.bsdm;
+//       const signState = autoPlay as DmSignState;
+//       _autotronStore.dispatch(dmOpenSign(signState));
+
+//       // populate user variables from the sign.
+//       // set current values === default values for now
+//       const bsdm: DmState = _autotronStore.getState().bsdm;
+//       const userVariableIds: BsDmId[] = dmGetUserVariableIdsForSign(bsdm);
+//       for (const userVariableId of userVariableIds) {
+//         const userVariable = dmGetUserVariableById(bsdm, { id: userVariableId }) as DmcUserVariable;
+//         _autotronStore.dispatch(addUserVariable(userVariableId, userVariable.defaultValue));
+//       }
+
+//       return Promise.resolve();
+//     });
+// }
 
 export function postMessage(event: ArEventType) {
   return ((dispatch: any) => {
