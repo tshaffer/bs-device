@@ -3,8 +3,13 @@
 import {
   HSMList,
   HSM,
+  // BsBrightSignPlayerModelState,
  } from '../type';
-import { BsBrightSignPlayerBatchAction, BsBrightSignPlayerAction } from './baseAction';
+import {
+  BsBrightSignPlayerModelBatchAction,
+  BsBrightSignPlayerModelAction,
+} from './baseAction';
+import { isObject } from 'lodash';
 
 /** @internal */
 /** @private */
@@ -12,9 +17,9 @@ export const ADD_HSM: string = 'ADD_HSM';
 
 /** @internal */
 /** @private */
-// export type AddHsmAction = BsBrightSignPlayerAction<Partial<BsBrightSignPlayerModelState>>;
-// export type AddHsmAction = BsBrightSignPlayerAction<Partial<HSM>>;
-export type AddHsmAction = BsBrightSignPlayerAction<HSM>;
+// export type AddHsmAction = BsBrightSignPlayerModelAction<Partial<BsBrightSignPlayerModelState>>;
+export type AddHsmAction = BsBrightSignPlayerModelAction<Partial<HSM>>;
+// export type AddHsmAction = BsBrightSignPlayerModelAction<HSM>;
 
 /** @internal */
 /** @private */
@@ -36,13 +41,14 @@ const initialState: HSMList = [];
 /** @private */
 export const hsmReducer = (
   state: HSMList = initialState,
-  action: BsBrightSignPlayerBatchAction) => {
+  action: BsBrightSignPlayerModelBatchAction) => {
   switch (action.type) {
 
     case ADD_HSM: {
 
       const newState: HSMList = state.slice(0);
       // TEDTODO
+      // newState.push(action.payload);
       newState.push(action.payload as any);
 
       return newState;
@@ -55,5 +61,9 @@ export const hsmReducer = (
 // -----------------------------------------------------------------------
 // Validators
 // -----------------------------------------------------------------------
-
-// TEDTODO
+/** @internal */
+/** @private */
+export const isValidHSMs = (state: any): boolean => {
+  return isObject(state);
+  // TEDTODO
+};

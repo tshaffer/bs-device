@@ -25,7 +25,8 @@ export const BRIGHTSIGN_PLAYER_MODEL_RESET = 'BRIGHTSIGN_PLAYER_MODEL_RESET';
 
 /** @internal */
 /** @private */
-export type BsBrightSignPlayerModelDispatch = Dispatch<BsBrightSignPlayerModelState>;
+// export type BsBrightSignPlayerModelDispatch = Dispatch<BsBrightSignPlayerModelState>;
+export type BsBrightSignPlayerModelDispatch = Dispatch<any>;
 // export type BaApUiModelDispatch = Dispatch<any>;
 
 /** @internal */

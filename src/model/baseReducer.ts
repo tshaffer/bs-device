@@ -4,10 +4,14 @@ import {
   Reducer,
   combineReducers
 } from 'redux';
+import { isNil } from 'lodash';
 import { BsBrightSignPlayerModelState } from '../type';
-import { BsBrightSignPlayerModelBaseAction, BsBrightSignPlayerModelBatchAction, BSBSBRIGHTSIGNPLAYERMODEL_BATCH } from '.';
+import {
+  BRIGHTSIGN_PLAYER_MODEL_BATCH,
+  BsBrightSignPlayerModelBaseAction,
+  BsBrightSignPlayerModelBatchAction,
+} from './baseAction';
 import { hsmReducer, isValidHSMs } from './hsm';
-import { isObject } from 'lodash';
 
 // -----------------------------------------------------------------------
 // Defaults
@@ -18,16 +22,23 @@ import { isObject } from 'lodash';
 // -----------------------------------------------------------------------
 // Reducers
 // -----------------------------------------------------------------------
+
+/** @internal */
+/** @private */
 export type BsBrightSignPlayerReducer = Reducer<BsBrightSignPlayerModelState>;
-const enableBatching = (
-  reduce: (state: BsBrightSignPlayerModelState, action: BsBrightSignPlayerModelBaseAction | BsBrightSignPlayerModelBatchAction) => BsBrightSignPlayerModelState,
+
+/** @internal */
+/** @private */
+export const enableBatching = (
+    reduce: (state: BsBrightSignPlayerModelState,
+      action: BsBrightSignPlayerModelBaseAction | BsBrightSignPlayerModelBatchAction) => BsBrightSignPlayerModelState,
 ): BsBrightSignPlayerReducer => {
   return function batchingReducer(
     state: BsBrightSignPlayerModelState,
     action: BsBrightSignPlayerModelBaseAction | BsBrightSignPlayerModelBatchAction,
   ): BsBrightSignPlayerModelState {
     switch (action.type) {
-      case BSBSBRIGHTSIGNPLAYERMODEL_BATCH:
+      case BRIGHTSIGN_PLAYER_MODEL_BATCH:
         return (action as BsBrightSignPlayerModelBatchAction).payload.reduce(batchingReducer, state);
       default:
         return reduce(state, action);
@@ -35,8 +46,7 @@ const enableBatching = (
   };
 };
 
-export const bsBrightSignPlayerReducer: BsBrightSignPlayerReducer =
-    enableBatching(combineReducers<BsBrightSignPlayerModelState>({
+export const bsBrightSignPlayerReducer = enableBatching(combineReducers<BsBrightSignPlayerModelState>({
   hsms: hsmReducer,
 }));
 
@@ -44,13 +54,16 @@ export const bsBrightSignPlayerReducer: BsBrightSignPlayerReducer =
 // Validators
 // -----------------------------------------------------------------------
 
-export const isValidBsBrightSignPlayerModelState = (state: any): boolean => {
-  return isObject(state)
-    // TEDTODO
-    && state.hasOwnProperty('hsms') && isValidActiveHStates((state as any).hsms);
-};
+/** @internal */
+/** @private */
+export function isValidBsBrightSignPlayerModelState(state: any): boolean {
+  return !isNil(state)
+    && state.hasOwnProperty('hsms') && isValidHSMs(state.hsms);
+}
 
-export const isValidBsBrightSignPlayerModelStateShallow = (state: any): boolean => {
-  return isObject(state)
+/** @internal */
+/** @private */
+export function isValidBsBrightSignPlayerModelStateShallow(state: any): boolean {
+  return !isNil(state)
     && state.hasOwnProperty('hsms');
-};
+}
