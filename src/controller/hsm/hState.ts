@@ -29,4 +29,3 @@ export function STTopEventHandler(_: ArEventType, stateData: HSMStateData) {
     return 'IGNORED';
   });
 }
-

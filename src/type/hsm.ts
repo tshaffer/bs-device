@@ -1,6 +1,6 @@
 /** @internal */
 
-import { ArEventType } from "./base";
+import { ArEventType } from './base';
 
 /** @private */
 export interface HSM {
@@ -24,3 +24,7 @@ export interface HSMStateData {
 }
 
 export type HSMList = HSM[];
+
+export interface HSMStateData {
+  nextState: HState | null;
+}

@@ -1,6 +1,6 @@
 import { HSM, HState, HSMStateData } from '../../type/hsm';
 import { isNil } from 'lodash';
-import { 
+import {
   ArEventType,
   BsBrightSignPlayerState,
  } from '../../type';
@@ -9,7 +9,7 @@ import { BsBrightSignPlayerModelBaseAction, setActiveHState } from '../../model'
 
 export class BsHSM implements HSM {
   readonly hsmId: string;
-  readonly topState: HState;
+  topState: HState;
   activeState: HState | null;
 
   dispatchEvent: ((event: ArEventType) => void);
