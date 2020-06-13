@@ -1,0 +1,408 @@
+import { HSM, HState, HSMStateData } from '../../type/hsm';
+import { isNil } from 'lodash';
+import { 
+  ArEventType,
+  BsBrightSignPlayerState,
+ } from '../../type';
+import { addHSM } from '../../model/hsm';
+import { BsBrightSignPlayerModelBaseAction, setActiveHState } from '../../model';
+
+export class BsHSM implements HSM {
+  readonly hsmId: string;
+  readonly topState: HState;
+  activeState: HState | null;
+
+  dispatchEvent: ((event: ArEventType) => void);
+  constructorHandler: (() => void) | null;
+  initialPseudoStateHandler: () => (HState | null);
+  initialized: boolean;
+
+  constructor(hsmId: string, dispatchEvent: ((event: ArEventType) => void)) {
+    this.hsmId = hsmId;
+    this.dispatchEvent = dispatchEvent;
+    this.activeState = null;
+    this.constructorHandler = null;
+    this.initialized = false;
+  }
+
+  constructorFunction() {
+    if (!isNil(this.constructorHandler)) {
+      this.constructorHandler();
+    }
+  }
+
+  hsmInitialize() {
+
+    return ((dispatch: any) => {
+
+      console.log('***** HSM.ts#hsmInitialize');
+      console.log(this);
+
+      const self = this;
+
+      return new Promise((resolve, reject) => {
+
+        dispatch(addHSM(self));
+
+        const hStateAction: BsBrightSignPlayerModelBaseAction = setActiveHState(self.hsmId, null);
+        dispatch(hStateAction);
+
+        // execute initial transition
+        if (!isNil(self.initialPseudoStateHandler)) {
+          const action = (self.initialPseudoStateHandler() as any).bind(self);
+          // self.activeState = dispatch(action);
+          // console.log(self.activeState);
+
+          dispatch(action).
+            then((aState: any) => {
+              self.activeState = aState;
+              const promise = dispatch(self.completeHsmInitialization().bind(self));
+              promise.then(() => {
+                // TEDTODO
+                // const hsmInitializationComplete = hsmInitialized();
+                // console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
+                // if (hsmInitializationComplete) {
+                //   const event: ArEventType = {
+                //     EventType: 'NOP',
+                //   };
+                //   dispatch(queueHsmEvent(event));
+                // }
+                return resolve();
+              });
+            });
+        } else {
+          const promise = dispatch(self.completeHsmInitialization().bind(self));
+          promise.then( () => {
+            // TEDTODO
+            // const hsmInitializationComplete = hsmInitialized();
+            // console.log('end of hsmInitialize-1, hsmInitializationComplete: ' + hsmInitializationComplete);
+            return resolve();
+          });
+          // if (hsmInitializationComplete) {
+          //   const event: ArEventType = {
+          //     EventType: 'NOP',
+          //   };
+          //   dispatch(queueHsmEvent(event));
+          // }
+        }
+      });
+    });
+  }
+
+  completeHsmInitialization() {
+
+    let action: any;
+
+    return ((dispatch: any) => {
+
+      const self = this;
+
+      return new Promise((resolve, reject) => {
+        const stateData: HSMStateData = { nextState: null };
+
+        // empty event used to get super states
+        const emptyEvent: ArEventType = { EventType: 'EMPTY_SIGNAL' };
+
+        // entry event
+        const entryEvent: ArEventType = { EventType: 'ENTRY_SIGNAL' };
+
+        // init event
+        const initEvent: ArEventType = { EventType: 'INIT_SIGNAL' };
+
+        // if there is no activeState, the playlist is empty
+        if (isNil(self.activeState)) {
+          dispatch(setActiveHState(self.hsmId, null));
+          console.log('***** return from HSM.ts#completeHsmInitialization');
+          console.log(self);
+          self.initialized = true;
+          return resolve();
+        }
+
+        if (!isNil(self.activeState)) {
+          let activeState: HState = self.activeState;
+
+          // start at the top state
+          if (isNil(self.topState)) {
+            // TODO
+            debugger;
+          }
+          let sourceState = self.topState;
+
+          while (true) {
+
+            const entryStates = [];
+            let entryStateIndex = 0;
+
+            // target of the initial transition
+            entryStates[0] = activeState;
+
+            // send an empty event to get the super state
+            action = (self.activeState).HStateEventHandler(emptyEvent, stateData).bind(self.activeState);
+            status = dispatch(action);
+
+            activeState = stateData.nextState as HState;
+            self.activeState = activeState;
+
+            // walk up the tree until the current source state is hit
+            while (activeState.id !== (sourceState).id) {
+              entryStateIndex = entryStateIndex + 1;
+              entryStates[entryStateIndex] = activeState;
+              action = self.activeState.HStateEventHandler(emptyEvent, stateData).bind(self.activeState);
+              status = dispatch(action);
+              activeState = stateData.nextState as HState;
+              self.activeState = activeState;
+            }
+
+            // restore the target of the initial transition
+            // activeState = entryStates[0];
+
+            // retrace the entry path in reverse (desired) order
+            while (entryStateIndex >= 0) {
+              const entryState = entryStates[entryStateIndex];
+              action = entryState.HStateEventHandler(entryEvent, stateData).bind(entryState).bind(entryState);
+              status = dispatch(action);
+              entryStateIndex = entryStateIndex - 1;
+            }
+
+            // new source state is the current state
+            sourceState = entryStates[0];
+
+            // console.log('HSM.ts#initialize: invoke handler with initEvent');
+            // console.log(sourceState.id);
+
+            action = sourceState.HStateEventHandler(initEvent, stateData).bind(sourceState);
+            status = dispatch(action);
+            if (status !== 'TRANSITION') {
+              self.activeState = sourceState;
+              dispatch(setActiveHState(self.hsmId, self.activeState));
+              console.log('***** return from HSM.ts#completeHsmInitialization');
+              console.log(self);
+              self.initialized = true;
+              return resolve();
+            }
+
+            activeState = stateData.nextState as HState;
+            self.activeState = activeState;
+          }
+        }
+      });
+    });
+  }
+
+  // TEDTODO - remove casts
+  hsmDispatch(event: ArEventType) {
+
+    let action: any;
+    let status: string;
+
+    return ((dispatch: any, getState: () => BsBrightSignPlayerState) => {
+
+      console.log('***** HSM.ts#Dispatch');
+      console.log(event.EventType);
+
+      // if there is no activeState, the playlist is empty
+      if (this.activeState == null) {
+        dispatch(setActiveHState(this.hsmId, this.activeState));
+        return;
+      }
+
+      const stateData: HSMStateData = { nextState: null };
+
+      // empty event used to get super states
+      const emptyEvent: ArEventType = { EventType: 'EMPTY_SIGNAL' };
+
+      // entry event
+      const entryEvent: ArEventType = { EventType: 'ENTRY_SIGNAL' };
+
+      // init event
+      const initEvent: ArEventType = { EventType: 'INIT_SIGNAL' };
+
+      // exit event
+      const exitEvent: ArEventType = { EventType: 'EXIT_SIGNAL' };
+
+      let t = this.activeState;                                                      // save the current state
+
+      status = 'SUPER';
+      let s: HState = this.activeState as HState; // TODO - initialized to reduce ts errors. TEDTODO - legit?
+      while (status === 'SUPER') {                                                 // process the event hierarchically
+        s = this.activeState as HState;
+        action = s.HStateEventHandler(event, stateData).bind(s);
+        status = dispatch(action);
+        this.activeState = stateData.nextState;
+      }
+
+      if (status === 'TRANSITION') {
+        const path = [];
+
+        path[0] = this.activeState;                                                // save the target of the transition
+        path[1] = t;                                                            // save the current state
+
+        // exit from the current state to the transition s
+        while (t.id !== s.id) {
+          action = t.HStateEventHandler(exitEvent, stateData).bind(t);
+          status = dispatch(action);
+          if (status === 'HANDLED') {
+            action = t.HStateEventHandler(emptyEvent, stateData).bind(t);
+            status = dispatch(action);
+          }
+          t = stateData.nextState as HState;
+        }
+
+        t = path[0] as HState;                                                            // target of the transition
+
+        // s is the source of the transition
+        let ip: number = -1; // TEDTODO - initialization legit?
+        // check source == target (transition to self)
+        if (s.id === t.id) {
+          action = s.HStateEventHandler(exitEvent, stateData).bind(s);                // exit the source
+          status = dispatch(action);
+          ip = 0;
+        } else {
+          action = t.HStateEventHandler(emptyEvent, stateData).bind(t);               // superstate of target
+          status = dispatch(action);
+          t = stateData.nextState as HState;
+          if (s.id === t.id) {                                                 // check source == target->super
+            ip = 0;                                                         // enter the target
+          } else {
+            action = s.HStateEventHandler(emptyEvent, stateData).bind(s);           // superstate of source
+            status = dispatch(action);
+
+            // check source->super == target->super
+            if ((stateData.nextState as HState).id === t.id) {
+              action = s.HStateEventHandler(exitEvent, stateData).bind(s);        // exit the source
+              status = dispatch(action);
+              ip = 0;                                                     // enter the target
+            } else {
+              if ((stateData.nextState as HState).id === (path as HState[])[0].id) {
+                // check source->super == target
+                action = s.HStateEventHandler(exitEvent, stateData).bind(s);    // exit the source
+                status = dispatch(action);
+              } else {
+                let iq = 0;                                             // indicate LCA not found
+                ip = 1;                                                 // enter target and its superstate
+                path[1] = t;                                            // save the superstate of the target
+                t = stateData.nextState as HState;                                // save source->super
+                // get target->super->super
+                const aState: any = (path as HState[])[1];
+                action = aState.HStateEventHandler(emptyEvent, stateData).bind(aState);
+                status = dispatch(action);
+                while (status === 'SUPER') {
+                  ip = ip + 1;
+                  path[ip] = stateData.nextState;                     // store the entry path
+                  if ((stateData.nextState as HState).id === s.id) {                // is it the source?
+                    iq = 1;                                         // indicate that LCA found
+                    ip = ip - 1;                                    // do not enter the source
+                    status = 'HANDLED';                             // terminate the loop
+                  } else {                                              // it is not the source; keep going up
+                    const bState: any = (stateData.nextState as HState);
+                    action = bState.HStateEventHandler(emptyEvent, stateData).bind(bState);
+                    status = dispatch(action);
+                  }
+                }
+
+                if (iq === 0) {                                           // LCA not found yet
+                  action = s.HStateEventHandler(exitEvent, stateData).bind(s); // exit the source
+                  status = dispatch(action);
+
+                  // check the rest of source->super == target->super->super...
+                  iq = ip;
+                  status = 'IGNORED';                                 // indicate LCA not found
+                  while (iq >= 0) {
+                    if (t.id === (path as HState[])[iq].id) {                      // is this the LCA?
+                      status = 'HANDLED';                         // indicate LCA found
+                      ip = iq - 1;                                // do not enter LCA
+                      iq = -1;                                    // terminate the loop
+                    } else {
+                      iq = iq - 1;                                 // try lower superstate of target
+                    }
+                  }
+
+                  if (status !== 'HANDLED') {                          // LCA not found yet?
+
+                    // check each source->super->... for each target->super...
+                    status = 'IGNORED';                             // keep looping
+                    while (status !== 'HANDLED') {
+                      action = t.HStateEventHandler(exitEvent, stateData).bind(t);
+                      status = dispatch(action);
+                      if (status === 'HANDLED') {
+                        action = t.HStateEventHandler(emptyEvent, stateData).bind(t);
+                        status = dispatch(action);
+                      }
+                      t = stateData.nextState as HState;                    // set to super of t
+                      iq = ip;
+                      while (iq > 0) {
+                        if (t.id === (path as HState[])[iq].id) {              // is this the LCA?
+                          ip = iq - 1;                        // do not enter LCA
+                          iq = -1;                            // break inner
+                          status = 'HANDLED';                 // break outer
+                        } else {
+                          iq = iq - 1;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // retrace the entry path in reverse (desired) order...
+        while (ip >= 0) {
+          const cState: any = (path as HState[])[ip];
+          action = cState.HStateEventHandler(entryEvent, stateData).bind(cState);        // enter path[ip]
+          status = dispatch(action);
+          ip = ip - 1;
+        }
+
+        // stick the target into register */
+        t = (path as HState[])[0];
+        this.activeState = t;                                                   // update the current state */
+
+        // console.log('HSM.ts#Dispatch: invoke handler with initEvent');
+
+        // drill into the target hierarchy...
+        action = t.HStateEventHandler(initEvent, stateData).bind(t);
+        status = dispatch(action);
+        this.activeState = stateData.nextState;
+
+        while (status === 'TRANSITION') {
+          ip = 0;
+          path[0] = this.activeState;
+          action = (this.activeState as HState)
+            .HStateEventHandler(emptyEvent, stateData).bind(this.activeState); // find superstate
+          status = dispatch(action);
+          this.activeState = stateData.nextState;
+          while ((this.activeState as HState).id !== t.id) {
+            ip = ip + 1;
+            path[ip] = this.activeState;
+            action = (this.activeState as HState)
+              .HStateEventHandler(emptyEvent, stateData).bind(this.activeState); // find superstate
+            status = dispatch(action);
+            this.activeState = stateData.nextState;
+          }
+          this.activeState = path[0];
+
+          while (ip >= 0) {
+            const dState: any = (path as HState[])[ip];
+            action = dState.HStateEventHandler(entryEvent, stateData).bind(dState);
+            status = dispatch(action);
+            ip = ip - 1;
+          }
+
+          t = (path as HState[])[0];
+
+          action = t.HStateEventHandler(initEvent, stateData).bind(t);
+          status = dispatch(action);
+        }
+      }
+
+      // set the new state or restore the current state
+      this.activeState = t;
+
+      dispatch(setActiveHState(this.hsmId, this.activeState));
+
+    });
+  }
+
+}

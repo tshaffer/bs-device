@@ -22,3 +22,9 @@ export interface BsBrightSignPlayerState {
 export interface BsBrightSignPlayerModelState {
   hsms: HSM[];
 }
+
+export interface ArEventType {
+  EventType: string;
+  data?: any;
+  EventData?: any;
+}
