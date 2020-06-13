@@ -9,7 +9,14 @@ import {
 } from '@brightsign/bsdatamodel';
 
 import { BsBrightSignPlayerState } from '../src/type';
-import { bsBrightSignPlayerReducer, App, initRuntime } from '../src/index';
+import { bsBrightSignPlayerReducer } from '../src/index';
+import {
+  initPlayer
+} from '../src/controller';
+import {
+  BrightSignPlayer
+} from '../src/component';
+
 import './bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
@@ -28,11 +35,11 @@ const getStore = () => {
 
 const store = getStore();
 
-store.dispatch(initRuntime(store));
+store.dispatch(initPlayer(store));
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <BrightSignPlayer />
   </Provider>,
   document.getElementById('root') as HTMLElement
 );
