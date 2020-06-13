@@ -8,10 +8,12 @@ import './asset/bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
 import 'font-awesome/css/font-awesome.min.css';
-import { App, bsBrightSignPlayerReducer, BsBrightSignPlayerState } from './index';
-import { initRuntime } from './controller';
 import { combineReducers } from 'redux';
 import { bsDmReducer } from '@brightsign/bsdatamodel';
+import { BsBrightSignPlayerState } from './type/base';
+import { bsBrightSignPlayerReducer } from './model';
+import { BrightSignPlayer } from './component';
+import { initPlayer } from './controller';
 
 const getStore = () => {
   const reducers = combineReducers<BsBrightSignPlayerState>({
@@ -30,11 +32,11 @@ function bootstrapper() {
 
   const store = getStore();
 
-  store.dispatch(initRuntime(store));
+  store.dispatch(initPlayer(store));
 
   ReactDOM.render(
     <Provider store={store}>
-      <App />
+      <BrightSignPlayer />
     </Provider>,
     document.getElementById('root') as HTMLElement
   );
