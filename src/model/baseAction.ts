@@ -1,15 +1,11 @@
 /** @module Model:base */
 
-import { Action } from 'redux';
-import { ActionCreator } from 'redux';
-import { Dispatch } from 'redux';
+import {
+  Action,
+  Dispatch,
+  ActionCreator,
+} from 'redux';
 import { BsBrightSignPlayerModelState } from '../type';
-
-/** @internal */
-/** @private */
-export interface ActionWithPayload extends Action {
-  payload : any;
-}
 
 // -----------------------------------------------------------------------
 // Actions
@@ -17,19 +13,20 @@ export interface ActionWithPayload extends Action {
 
 /** @internal */
 /** @private */
-export const BSBSBRIGHTSIGNPLAYERMODEL_BATCH = 'BSBSBRIGHTSIGNPLAYERMODEL_BATCH';
+export const BRIGHTSIGN_PLAYER_MODEL_BATCH = 'BRIGHTSIGN_PLAYER_MODEL_BATCH';
 
 /** @internal */
 /** @private */
-export const BSBSBRIGHTSIGNPLAYERMODEL_REHYDRATE = 'BSBSBRIGHTSIGNPLAYERMODEL_REHYDRATE';
+export const BRIGHTSIGN_PLAYER_MODEL_REHYDRATE = 'BRIGHTSIGN_PLAYER_MODEL_REHYDRATE';
 
 /** @internal */
 /** @private */
-export const BSBSBRIGHTSIGNPLAYERMODEL_RESET = 'BSBSBRIGHTSIGNPLAYERMODEL_RESET';
+export const BRIGHTSIGN_PLAYER_MODEL_RESET = 'BRIGHTSIGN_PLAYER_MODEL_RESET';
 
 /** @internal */
 /** @private */
 export type BsBrightSignPlayerModelDispatch = Dispatch<BsBrightSignPlayerModelState>;
+// export type BaApUiModelDispatch = Dispatch<any>;
 
 /** @internal */
 /** @private */
@@ -48,7 +45,7 @@ export interface BsBrightSignPlayerModelAction<T> extends BsBrightSignPlayerMode
 
 /** @internal */
 /** @private */
-export type BsBrightSignPlayerModelActionCreator<T> = ActionCreator<BsBrightSignPlayerModelAction<T>>;
+export type BsBrightSignPlayerActionCreator<T> = ActionCreator<BsBrightSignPlayerModelAction<T>>;
 
 /** @internal */
 /** @private */
@@ -60,8 +57,9 @@ export type BsBrightSignPlayerModelThunkAction<T> = (
 
 /** @internal */
 /** @private */
-export const bsBrightSignPlayerModelBatchAction = (action: BsBrightSignPlayerModelBaseAction[]): BsBrightSignPlayerModelBatchAction => {
-  return {type: BSBSBRIGHTSIGNPLAYERMODEL_BATCH, payload: action};
+export const bsBrightSignPlayerBatchAction =
+    (action: BsBrightSignPlayerModelBaseAction[]): BsBrightSignPlayerModelBatchAction => {
+  return {type: BRIGHTSIGN_PLAYER_MODEL_BATCH, payload: action};
 };
 
 /** @internal */
@@ -79,12 +77,14 @@ export interface RehydrateBsBrightSignPlayerModelParams {
 
 /** @internal */
 /** @private */
-export type RehydrateBsBrightSignPlayerModelAction = BsBrightSignPlayerModelAction<RehydrateBsBrightSignPlayerModelParams>;
-export const bsBrightSignPlayerModelRehydrateModel = (bsBrightSignPlayerModelState: BsBrightSignPlayerModelState): RehydrateBsBrightSignPlayerModelAction => {
+export type RehydrateBsBrightSignPlayerModelAction =
+  BsBrightSignPlayerModelAction<RehydrateBsBrightSignPlayerModelParams>;
+export const bsBrightSignPlayerRehydrateModel =
+    (bsBrightSignPlayerState: BsBrightSignPlayerModelState): RehydrateBsBrightSignPlayerModelAction => {
   return {
-    type: BSBSBRIGHTSIGNPLAYERMODEL_REHYDRATE,
+    type: BRIGHTSIGN_PLAYER_MODEL_REHYDRATE,
     payload: {
-      newBsBrightSignPlayerModelState: bsBrightSignPlayerModelState,
+      newBsBrightSignPlayerModelState: bsBrightSignPlayerState,
     },
   };
 };
@@ -92,9 +92,9 @@ export const bsBrightSignPlayerModelRehydrateModel = (bsBrightSignPlayerModelSta
 /** @internal */
 /** @private */
 export type ResetBsBrightSignPlayerModelAction = BsBrightSignPlayerModelAction<null>;
-export const bsBrightSignPlayerModelResetModel = (): ResetBsBrightSignPlayerModelAction => {
+export const bsBrightSignPlayerResetModel = (): ResetBsBrightSignPlayerModelAction => {
   return {
-    type: BSBSBRIGHTSIGNPLAYERMODEL_RESET,
+    type: BRIGHTSIGN_PLAYER_MODEL_RESET,
     payload: null,
   };
 };

@@ -43,4 +43,3 @@ function bootstrapper() {
 
 // setTimeout(bootstrapper, 30000);
 setTimeout(bootstrapper, 1000);
-

@@ -1,17 +1,26 @@
-import { HSMList } from '../type';
-import { ActionWithPayload } from './baseAction';
-import { HSM } from '../controller/hsm/HSM';
-import { isObject } from 'lodash';
+/** @module Model:template */
 
-// ------------------------------------
-// Constants
-// ------------------------------------
-export const ADD_HSM = 'ADD_HSM';
+import {
+  HSMList,
+  HSM,
+ } from '../type';
+import { BsBrightSignPlayerBatchAction, BsBrightSignPlayerAction } from './baseAction';
 
-// ------------------------------------
-// Actions
-// ------------------------------------
-export function addHSM(hsm: HSM) {
+/** @internal */
+/** @private */
+export const ADD_HSM: string = 'ADD_HSM';
+
+/** @internal */
+/** @private */
+// export type AddHsmAction = BsBrightSignPlayerAction<Partial<BsBrightSignPlayerModelState>>;
+// export type AddHsmAction = BsBrightSignPlayerAction<Partial<HSM>>;
+export type AddHsmAction = BsBrightSignPlayerAction<HSM>;
+
+/** @internal */
+/** @private */
+export function addHSM(
+  hsm: HSM,
+): AddHsmAction {
   return {
     type: ADD_HSM,
     payload: hsm,
@@ -23,15 +32,18 @@ export function addHSM(hsm: HSM) {
 // ------------------------------------
 const initialState: HSMList = [];
 
+/** @internal */
+/** @private */
 export const hsmReducer = (
   state: HSMList = initialState,
-  action: ActionWithPayload) => {
+  action: BsBrightSignPlayerBatchAction) => {
   switch (action.type) {
 
     case ADD_HSM: {
 
       const newState: HSMList = state.slice(0);
-      newState.push(action.payload);
+      // TEDTODO
+      newState.push(action.payload as any);
 
       return newState;
     }
@@ -40,10 +52,8 @@ export const hsmReducer = (
   }
 };
 
-/** @internal */
-/** @private */
-export const isValidHSMs = (state: any): boolean => {
-  return isObject(state);
-  // TEDTODO
-  //  && state.hasOwnProperty('statePositionById') && isObject(state.statePositionById);
-};
+// -----------------------------------------------------------------------
+// Validators
+// -----------------------------------------------------------------------
+
+// TEDTODO
