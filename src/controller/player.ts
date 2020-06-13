@@ -13,14 +13,14 @@ export function initPlayer(store: Store<BsBspState>) {
 
 function launchHSM() {
   return ((dispatch: any) => {
-    debugger;
     const _playerHSM = new PlayerHSM('playerHSM', startPlayback, restartPlayback, postMessage, queueHsmEvent);
     console.log(_playerHSM);
-    // const action: any = _playerHSM.hsmInitialize().bind(_playerHSM);
-    // dispatch(action).then(() => {
-    //   const hsmInitializationComplete = hsmInitialized();
-    //   console.log('69696969 - end of launchHSM, hsmInitializationComplete = ' + hsmInitializationComplete);
-    // });
+    const action: any = _playerHSM.hsmInitialize().bind(_playerHSM);
+    dispatch(action).then(() => {
+      console.log('return from hsmInitialize');
+      // const hsmInitializationComplete = hsmInitialized();
+      // console.log('69696969 - end of launchHSM, hsmInitializationComplete = ' + hsmInitializationComplete);
+    });
   });
 }
 
