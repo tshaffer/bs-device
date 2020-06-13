@@ -8,8 +8,8 @@ import {
   bsDmReducer,
 } from '@brightsign/bsdatamodel';
 
-import { BsBrightSignPlayerState } from '../src/type';
-import { bsBrightSignPlayerReducer } from '../src/index';
+import { BsBspState } from '../src/type';
+import { bsBspReducer } from '../src/index';
 import {
   initPlayer
 } from '../src/controller';
@@ -23,11 +23,11 @@ import 'flexboxgrid/dist/flexboxgrid.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 
 const getStore = () => {
-  const reducers = combineReducers<BsBrightSignPlayerState>({
+  const reducers = combineReducers<BsBspState>({
     bsdm: bsDmReducer,
-    bsPlayer: bsBrightSignPlayerReducer,
+    bsPlayer: bsBspReducer,
   });
-  return createStore<BsBrightSignPlayerState>(
+  return createStore<BsBspState>(
     reducers,
     composeWithDevTools(applyMiddleware(thunk),
   ));

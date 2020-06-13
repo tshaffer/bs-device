@@ -12,14 +12,14 @@ export type DeepPartial<T> = {
 
 /** @internal */
 /** @private */
-export interface BsBrightSignPlayerState {
+export interface BsBspState {
   bsdm: DmState;
-  bsPlayer: BsBrightSignPlayerModelState;
+  bsPlayer: BsBspModelState;
 }
 
 /** @internal */
 /** @private */
-export interface BsBrightSignPlayerModelState {
+export interface BsBspModelState {
   hsms: HSM[];
 }
 

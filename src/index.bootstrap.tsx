@@ -10,17 +10,17 @@ import 'flexboxgrid/dist/flexboxgrid.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 import { combineReducers } from 'redux';
 import { bsDmReducer } from '@brightsign/bsdatamodel';
-import { BsBrightSignPlayerState } from './type/base';
-import { bsBrightSignPlayerReducer } from './model';
+import { BsBspState } from './type/base';
+import { bsBspReducer } from './model';
 import { BrightSignPlayer } from './component';
 import { initPlayer } from './controller';
 
 const getStore = () => {
-  const reducers = combineReducers<BsBrightSignPlayerState>({
+  const reducers = combineReducers<BsBspState>({
     bsdm: bsDmReducer,
-    bsPlayer: bsBrightSignPlayerReducer,
+    bsPlayer: bsBspReducer,
   });
-  return createStore<BsBrightSignPlayerState>(
+  return createStore<BsBspState>(
     reducers,
     composeWithDevTools(applyMiddleware(thunk),
     ));

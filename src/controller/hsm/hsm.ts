@@ -2,10 +2,10 @@ import { HSM, HState, HSMStateData } from '../../type/hsm';
 import { isNil } from 'lodash';
 import {
   ArEventType,
-  BsBrightSignPlayerState,
+  BsBspState,
  } from '../../type';
 import { addHSM } from '../../model/hsm';
-import { BsBrightSignPlayerModelBaseAction, setActiveHState } from '../../model';
+import { BsBspModelBaseAction, setActiveHState } from '../../model';
 
 export class BsHSM implements HSM {
   readonly hsmId: string;
@@ -44,7 +44,7 @@ export class BsHSM implements HSM {
 
         dispatch(addHSM(self));
 
-        const hStateAction: BsBrightSignPlayerModelBaseAction = setActiveHState(self.hsmId, null);
+        const hStateAction: BsBspModelBaseAction = setActiveHState(self.hsmId, null);
         dispatch(hStateAction);
 
         // execute initial transition
@@ -195,7 +195,7 @@ export class BsHSM implements HSM {
     let action: any;
     let status: string;
 
-    return ((dispatch: any, getState: () => BsBrightSignPlayerState) => {
+    return ((dispatch: any, getState: () => BsBspState) => {
 
       console.log('***** HSM.ts#Dispatch');
       console.log(event.EventType);

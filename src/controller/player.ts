@@ -1,18 +1,19 @@
 import { Store } from 'redux';
-import { BsBrightSignPlayerState, ArEventType } from '../type/base';
+import { BsBspState, ArEventType } from '../type/base';
 import { PlayerHSM } from './hsm';
 // import { HSM } from '../type';
 
 // let _hsmList: HSM[] = [];
 
-export function initPlayer(store: Store<BsBrightSignPlayerState>) {
-  return ((dispatch: any, getState: () => BsBrightSignPlayerState) => {
+export function initPlayer(store: Store<BsBspState>) {
+  return ((dispatch: any, getState: () => BsBspState) => {
     dispatch(launchHSM());
   });
 }
 
 function launchHSM() {
   return ((dispatch: any) => {
+    debugger;
     const _playerHSM = new PlayerHSM('playerHSM', startPlayback, restartPlayback, postMessage, queueHsmEvent);
     console.log(_playerHSM);
     // const action: any = _playerHSM.hsmInitialize().bind(_playerHSM);
