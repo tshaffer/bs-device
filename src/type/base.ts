@@ -2,7 +2,7 @@
 
 import { DmState } from '@brightsign/bsdatamodel';
 
-import { HSM } from './hsm';
+import { BspHsmState } from './hsm';
 
 /** @internal */
 /** @private */
@@ -20,7 +20,7 @@ export interface BsBspState {
 /** @internal */
 /** @private */
 export interface BsBspModelState {
-  hsms: HSM[];
+  hsmState: BspHsmState[];
 }
 
 export interface ArEventType {
