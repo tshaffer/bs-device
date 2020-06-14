@@ -11,8 +11,10 @@ import {
   BsBspModelBaseAction,
   BsBspModelBatchAction,
 } from './baseAction';
-import hsmReducer from './hsm';
-import { isValidHSMs } from './hsm';
+import {
+  hsmReducer,
+  isValidHSMs
+} from './hsm';
 
 // -----------------------------------------------------------------------
 // Defaults
@@ -31,8 +33,8 @@ export type BsBrightSignPlayerReducer = Reducer<BsBspModelState>;
 /** @internal */
 /** @private */
 export const enableBatching = (
-    reduce: (state: BsBspModelState,
-      action: BsBspModelBaseAction | BsBspModelBatchAction) => BsBspModelState,
+  reduce: (state: BsBspModelState,
+    action: BsBspModelBaseAction | BsBspModelBatchAction) => BsBspModelState,
 ): BsBrightSignPlayerReducer => {
   return function batchingReducer(
     state: BsBspModelState,

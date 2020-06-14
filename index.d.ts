@@ -19,46 +19,46 @@ export const BRIGHTSIGN_PLAYER_MODEL_REHYDRATE = "BRIGHTSIGN_PLAYER_MODEL_REHYDR
 /** @private */
 export const BRIGHTSIGN_PLAYER_MODEL_RESET = "BRIGHTSIGN_PLAYER_MODEL_RESET";
 /** @private */
-export type BsBrightSignPlayerModelDispatch = Dispatch<any>;
+export type BsBspModelDispatch = Dispatch<any>;
 /** @private */
-export interface BsBrightSignPlayerModelBaseAction extends Action {
+export interface BsBspModelBaseAction extends Action {
     type: string;
     payload: {};
     error?: boolean;
     meta?: {};
 }
 /** @private */
-export interface BsBrightSignPlayerModelAction<T> extends BsBrightSignPlayerModelBaseAction {
+export interface BsBspModelAction<T> extends BsBspModelBaseAction {
     payload: T;
 }
 /** @private */
-export type BsBrightSignPlayerActionCreator<T> = ActionCreator<BsBrightSignPlayerModelAction<T>>;
+export type BsBspActionCreator<T> = ActionCreator<BsBspModelAction<T>>;
 /** @private */
-export type BsBrightSignPlayerModelThunkAction<T> = (dispatch: BsBrightSignPlayerModelDispatch, getState: () => BsBrightSignPlayerModelState, extraArgument: undefined) => T;
+export type BsBspModelThunkAction<T> = (dispatch: BsBspModelDispatch, getState: () => BsBspModelState, extraArgument: undefined) => T;
 /** @private */
-export const bsBrightSignPlayerBatchAction: (action: BsBrightSignPlayerModelBaseAction[]) => BsBrightSignPlayerModelBatchAction;
+export const bsBspBatchAction: (action: BsBspModelBaseAction[]) => BsBspModelBatchAction;
 /** @private */
-export interface BsBrightSignPlayerModelBatchAction extends Action {
+export interface BsBspModelBatchAction extends Action {
     type: string;
-    payload: BsBrightSignPlayerModelBaseAction[];
+    payload: BsBspModelBaseAction[];
 }
 /** @private */
-export interface RehydrateBsBrightSignPlayerModelParams {
-    newBsBrightSignPlayerModelState: BsBrightSignPlayerModelState;
+export interface RehydrateBsBspModelParams {
+    newBsBrightSignPlayerModelState: BsBspModelState;
 }
 /** @private */
-export type RehydrateBsBrightSignPlayerModelAction = BsBrightSignPlayerModelAction<RehydrateBsBrightSignPlayerModelParams>;
-export const bsBrightSignPlayerRehydrateModel: (bsBrightSignPlayerState: BsBrightSignPlayerModelState) => RehydrateBsBrightSignPlayerModelAction;
+export type RehydrateBsBspModelAction = BsBspModelAction<RehydrateBsBspModelParams>;
+export const bsBrightSignPlayerRehydrateModel: (bsBrightSignPlayerState: BsBspModelState) => RehydrateBsBspModelAction;
 /** @private */
-export type ResetBsBrightSignPlayerModelAction = BsBrightSignPlayerModelAction<null>;
-export const bsBrightSignPlayerResetModel: () => ResetBsBrightSignPlayerModelAction;
+export type ResetBsBspModelAction = BsBspModelAction<null>;
+export const bsBrightSignPlayerResetModel: () => ResetBsBspModelAction;
 
 /** @module Model:base */
 /** @private */
-export type BsBrightSignPlayerReducer = Reducer<BsBrightSignPlayerModelState>;
+export type BsBrightSignPlayerReducer = Reducer<BsBspModelState>;
 /** @private */
-export const enableBatching: (reduce: (state: BsBrightSignPlayerModelState, action: BsBrightSignPlayerModelBaseAction | BsBrightSignPlayerModelBatchAction) => BsBrightSignPlayerModelState) => BsBrightSignPlayerReducer;
-export const bsBrightSignPlayerReducer: Reducer<BsBrightSignPlayerModelState>;
+export const enableBatching: (reduce: (state: BsBspModelState, action: BsBspModelBaseAction | BsBspModelBatchAction) => BsBspModelState) => BsBrightSignPlayerReducer;
+export const bsBspReducer: Reducer<BsBspModelState>;
 /** @private */
 export function isValidBsBrightSignPlayerModelState(state: any): boolean;
 /** @private */
@@ -67,12 +67,16 @@ export function isValidBsBrightSignPlayerModelStateShallow(state: any): boolean;
 /** @module Model:template */
 /** @private */
 export const ADD_HSM: string;
+export const SET_ACTIVE_HSTATE = "SET_ACTIVE_HSTATE";
 /** @private */
-export type AddHsmAction = BsBrightSignPlayerModelAction<Partial<HSM>>;
+export type AddHsmAction = BsBspModelAction<Partial<HSM>>;
 /** @private */
-export function addHSM(hsm: HSM): AddHsmAction;
+export function addHSM(ihsm: IHSM): AddHsmAction;
 /** @private */
-export const hsmReducer: (state: HSMList | undefined, action: BsBrightSignPlayerModelBatchAction) => HSMList;
+export type SetActiveHStateAction = BsBspModelAction<any>;
+export function setActiveHState(hsmId: string, activeState: any): SetActiveHStateAction;
+export const hStatesById: (state: IHStateMap | undefined, action: BsBspModelBatchAction) => IHStateMap;
+export const hsmReducer: import("redux").Reducer<BspHsmState>;
 /** @private */
 export const isValidHSMs: (state: any) => boolean;
 
@@ -82,18 +86,65 @@ export type DeepPartial<T> = {
     [P in keyof T]?: DeepPartial<T[P]>;
 };
 /** @private */
-export interface BsBrightSignPlayerState {
+export interface BsBspState {
     bsdm: DmState;
-    bsPlayer: BsBrightSignPlayerModelState;
+    bsPlayer: BsBspModelState;
 }
 /** @private */
-export interface BsBrightSignPlayerModelState {
-    hsms: HSM[];
+export interface BsBspModelState {
+    hsmState: BspHsmState[];
+}
+export interface ArEventType {
+    EventType: string;
+    data?: any;
+    EventData?: any;
 }
 
+export interface IHSM {
+    hsmId: string;
+    topStateId: string;
+    activeStateId: string | null;
+    initialized: boolean;
+}
+export interface IHState {
+    id: string;
+    stateMachineId: string;
+    topStateId: string;
+    superStateId: string;
+}
 /** @private */
 export interface HSM {
     readonly hsmId: string;
+    readonly topState: HState;
+    readonly activeState: HState | null;
+    dispatchEvent: ((event: ArEventType) => void);
+    constructorHandler: (() => void) | null;
+    initialPseudoStateHandler: () => (HState | null);
+    initialized: boolean;
+}
+export interface HState {
+    topState: HState;
+    stateMachine: HSM;
+    superState: HState;
+    id: string;
+    HStateEventHandler: (event: ArEventType, stateData: HSMStateData) => any;
+}
+export interface HSMStateData {
+    nextState: HState | null;
 }
 export type HSMList = HSM[];
+export type IHSMList = IHSM[];
+export interface HSMStateData {
+    nextState: HState | null;
+}
+export interface BspHsmState {
+    hsmList: HSMList[];
+    hStatesById: HStateMap;
+}
+export interface HStateMap {
+    [hsmId: string]: string | null;
+}
+export interface IHStateMap {
+    [hsmId: string]: string | null;
+}
 

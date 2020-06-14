@@ -1,9 +1,9 @@
-import { HSM, HState, HSMStateData } from '../../type/hsm';
+import { HSM, HState, HSMStateData, IHSM, IHState } from '../../type/hsm';
 import { isNil } from 'lodash';
 import {
   ArEventType,
   BsBspState,
- } from '../../type';
+} from '../../type';
 import { addHSM } from '../../model/hsm';
 import { BsBspModelBaseAction, setActiveHState } from '../../model';
 
@@ -42,7 +42,14 @@ export class BsHSM implements HSM {
 
       return new Promise((resolve, reject) => {
 
-        dispatch(addHSM(self));
+        // dispatch(addHSM(self));
+        const iHsm: IHSM = {
+          hsmId: self.hsmId,
+          topStateId: self.topState.id,
+          activeStateId: isNil(self.activeState) ? null : self.activeState.id,
+          initialized: self.initialized
+        };
+        dispatch(addHSM(iHsm));
 
         const hStateAction: BsBspModelBaseAction = setActiveHState(self.hsmId, null);
         dispatch(hStateAction);
@@ -72,7 +79,7 @@ export class BsHSM implements HSM {
             });
         } else {
           const promise = dispatch(self.completeHsmInitialization().bind(self));
-          promise.then( () => {
+          promise.then(() => {
             // TEDTODO
             // const hsmInitializationComplete = hsmInitialized();
             // console.log('end of hsmInitialize-1, hsmInitializationComplete: ' + hsmInitializationComplete);
@@ -174,7 +181,16 @@ export class BsHSM implements HSM {
             status = dispatch(action);
             if (status !== 'TRANSITION') {
               self.activeState = sourceState;
-              dispatch(setActiveHState(self.hsmId, self.activeState));
+
+              // dispatch(setActiveHState(self.hsmId, self.activeState));
+              const activeIHstate: IHState | null = isNil(self.activeState) ? null : {
+                id: self.activeState.id,
+                stateMachineId: self.activeState.stateMachine.hsmId,
+                topStateId: self.activeState.topState.id,
+                superStateId: self.activeState.superState.id,
+              };
+              dispatch(setActiveHState(self.hsmId, activeIHstate));
+
               console.log('***** return from HSM.ts#completeHsmInitialization');
               console.log(self);
               self.initialized = true;
@@ -400,8 +416,15 @@ export class BsHSM implements HSM {
       // set the new state or restore the current state
       this.activeState = t;
 
-      dispatch(setActiveHState(this.hsmId, this.activeState));
-
+      // dispatch(setActiveHState(this.hsmId, this.activeState));
+      const activeIHstate: IHState | null = isNil(this.activeState) ? null : {
+        id: this.activeState.id,
+        stateMachineId: this.activeState.stateMachine.hsmId,
+        topStateId: this.activeState.topState.id,
+        superStateId: this.activeState.superState.id,
+      };
+      dispatch(setActiveHState(this.hsmId, activeIHstate));
+      return;
     });
   }
 
