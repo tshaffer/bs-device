@@ -67,9 +67,9 @@ class STPlayer extends BsHState {
   STPlayerEventHandler(event: ArEventType, stateData: HSMStateData): any {
 
     return (dispatch: any) => {
-      stateData.nextState = null;
+      stateData.nextStateId = null;
 
-      stateData.nextState = this.superState;
+      stateData.nextStateId = this.superState;
       return 'SUPER';
     };
   }
@@ -87,10 +87,10 @@ class STPlaying extends BsHState {
   STPlayingEventHandler(event: ArEventType, stateData: HSMStateData): any {
 
     return (dispatch: any, getState: any) => {
-      stateData.nextState = null;
+      stateData.nextStateId = null;
 
       console.log('***** - STPlayingEventHandler, event type ' + event.EventType);
-      stateData.nextState = this.superState;
+      stateData.nextStateId = this.superState;
       return 'SUPER';
     };
   }
@@ -109,18 +109,18 @@ class STWaiting extends BsHState {
   STWaitingEventHandler(event: ArEventType, stateData: HSMStateData): any {
 
     return (dispatch: any) => {
-      stateData.nextState = null;
+      stateData.nextStateId = null;
 
       if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
         console.log(this.id + ': entry signal');
         return 'HANDLED';
       } else if (event.EventType && event.EventType === 'TRANSITION_TO_PLAYING') {
         console.log(this.id + ': TRANSITION_TO_PLAYING event received');
-        stateData.nextState = (this.stateMachine as PlayerHSM).stPlaying;
+        stateData.nextStateId = (this.stateMachine as PlayerHSM).stPlaying;
         return 'TRANSITION';
       }
 
-      stateData.nextState = this.superState;
+      stateData.nextStateId = this.superState;
       return 'SUPER';
     };
   }

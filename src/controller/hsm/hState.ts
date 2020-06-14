@@ -25,7 +25,7 @@ export class BsHState implements HState {
 export function STTopEventHandler(_: ArEventType, stateData: HSMStateData) {
 
   return ((dispatch: any) => {
-    stateData.nextState = null;
+    stateData.nextStateId = null;
     return 'IGNORED';
   });
 }

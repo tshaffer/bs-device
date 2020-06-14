@@ -6,7 +6,7 @@ import {
   // HStateMap,
   BspHsmState,
   IHSMList,
-  IHSM,
+  BspHsm,
   IHStateMap,
   // BsBrightSignPlayerModelState,
 } from '../type';
@@ -35,11 +35,11 @@ export type AddHsmAction = BsBspModelAction<Partial<HSM>>;
 /** @internal */
 /** @private */
 export function addHSM(
-  ihsm: IHSM,
+  hsm: BspHsm,
 ): AddHsmAction {
   return {
     type: ADD_HSM,
-    payload: ihsm,
+    payload: hsm,
   };
 }
 

@@ -1,56 +1,30 @@
 
-import { ArEventType } from './base';
-
-export interface IHSM {
+export interface BspHsm {
   hsmId: string;
   topStateId: string;
   activeStateId: string | null;
   initialized: boolean;
 }
 
-export interface IHState {
+export interface BspHState {
   id: string;
   stateMachineId: string;
   topStateId: string;
   superStateId: string;
 }
 
-/** @internal */
-/** @private */
-export interface HSM {
-  readonly hsmId: string;
-  readonly topState: HState;
-  readonly activeState: HState | null;
-
-  dispatchEvent: ((event: ArEventType) => void);
-  constructorHandler: (() => void) | null;
-  initialPseudoStateHandler: () => (HState | null);
-  initialized: boolean;
+export interface HSMStateData {
+  nextStateId: string | null;
 }
 
-export interface HState {
-  topState: HState;
-  stateMachine: HSM;
-  superState: HState;
-  id: string;
-
-  HStateEventHandler: (event: ArEventType, stateData: HSMStateData) => any;
-
-}
+export type HSMIdList = string[];
 
 export interface HSMStateData {
-  nextState: HState | null;
-}
-
-export type HSMList = HSM[];
-export type IHSMList = IHSM[];
-
-export interface HSMStateData {
-  nextState: HState | null;
+  nextStateId: string | null;
 }
 
 export interface BspHsmState {
-  hsmList: HSMList[];
+  hsmIdList: HSMIdList[];
   hStatesById: HStateMap;
 }
 
