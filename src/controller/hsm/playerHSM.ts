@@ -1,19 +1,17 @@
 
-import { bspCreateHsm, bspInitializeHsm } from './hsm';
+import { bspCreateHsm, bspInitializeHsm, getHState } from './hsm';
 import { bspCreateHState } from './hState';
+import { restartPlayback } from '../player';
 
-// where does this go?
-// bspInitializeHsm
 export const bspCreatePlayerHsm = (): any => {
   return ((dispatch: any) => {
     console.log('invoke bspCreatePlayerHsm');
     dispatch(bspCreateHsm('player', 'player'));
     dispatch(bspCreateHState('Top', 'player'));
 
-    // create stPlayer
-    // create stPlaying
-    // create stWaiting
-
+    dispatch(bspCreateHState('Player', 'player'));
+    dispatch(bspCreateHState('Playing', 'player'));
+    dispatch(bspCreateHState('Waiting', 'player'));
   });
 };
 
@@ -29,11 +27,17 @@ export const bspInitializePlayerHsm = (): any => {
 const initializePlayerStateMachine = (): any => {
   return (dispatch: any) => {
     console.log('invoke initializePlayerStateMachine');
-    // return this.restartPlayback('')
-    //   .then(() => {
+
+    // TEDTODO - BIG
+    // HOW TO GET restartPlayback here?
+    // it should be stored, though not as a function, in redux
+    return restartPlayback('')
+
+      .then(() => {
+        console.log('return from invoking playerStateMachine restartPlayback');
+        return Promise.resolve(getHState('Playing'));
     //     return Promise.resolve(this.stPlaying);
-    //   });
-    return Promise.resolve();
+      });
   };
 };
 

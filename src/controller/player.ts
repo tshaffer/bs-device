@@ -26,6 +26,11 @@ function launchHSM() {
   });
 }
 
+export const restartPlayback = (presentationName: string): Promise<void> => {
+  console.log('invoke restartPlayback');
+  return Promise.resolve();
+};
+
 // function startPlayback() {
 
 //   return (dispatch: any, getState: any) => {

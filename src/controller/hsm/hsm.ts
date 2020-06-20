@@ -409,7 +409,7 @@ export function hsmDispatch(
 }
 
 // TEDTODO
-function getHState(hStateId: string | null): any {
+export function getHState(hStateId: string | null): any {
   return null;
 }
 
