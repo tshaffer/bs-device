@@ -54,10 +54,13 @@ export function isValidBsBrightSignPlayerModelStateShallow(state: any): boolean;
 /** @module Model:template */
 export const ADD_HSM: string;
 export const ADD_HSTATE = "ADD_HSTATE";
+export const SET_ACTIVE_HSTATE = "SET_ACTIVE_HSTATE";
 export type AddHsmAction = BsBspModelAction<Partial<BspHsm>>;
 export function addHsm(hsm: BspHsm): AddHsmAction;
 export type AddHStateAction = BsBspModelAction<Partial<BspHState>>;
 export function addHState(hState: BspHState): AddHStateAction;
+export type SetActiveHStateAction = BsBspModelAction<BspHState | null | any>;
+export function setActiveHState(hsmId: string, activeState: BspHState | null): SetActiveHStateAction;
 export const hsmReducer: import("redux").Reducer<BspHsmState>;
 /** @private */
 export const isValidHsmState: (state: any) => boolean;
@@ -85,7 +88,8 @@ export interface ArEventType {
     EventData?: any;
 }
 
-export type BspHsmMap = BspMap<BspHsm> | {};
+export type BspHsmMap = BspMap<BspHsm>;
+export type BspHStateMap = BspMap<BspHState>;
 export interface BspHsm {
     id: string;
     type: string;
@@ -93,10 +97,9 @@ export interface BspHsm {
     activeStateId: string | null;
     initialized: boolean;
 }
-export type BspHStateMap = BspMap<BspHState>;
 export interface BspHState {
     id: string;
-    stateMachineId: string;
+    hsmId: string;
     topStateId: string;
     superStateId: string;
 }

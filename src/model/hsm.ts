@@ -97,7 +97,7 @@ const activeHStateByHsm = (
   switch (action.type) {
     case SET_ACTIVE_HSTATE: {
       const newState: BspHStateMap = Object.assign({}, state);
-      const hsmId: string = (action.payload as BspHState).stateMachineId;
+      const hsmId: string = (action.payload as BspHState).hsmId;
       const activeState: BspHState = action.payload as BspHState;
       newState[hsmId] = activeState;
       return newState;

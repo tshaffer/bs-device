@@ -1,6 +1,6 @@
 import { Store } from 'redux';
 import { BsBspState, ArEventType } from '../type/base';
-import { PlayerHSM } from './hsm';
+import { bspCreatePlayerHsm } from './hsm';
 // import { HSM } from '../type';
 
 // let _hsmList: HSM[] = [];
@@ -13,27 +13,28 @@ export function initPlayer(store: Store<BsBspState>) {
 
 function launchHSM() {
   return ((dispatch: any) => {
-    const _playerHSM = new PlayerHSM('playerHSM', startPlayback, restartPlayback, postMessage, queueHsmEvent);
-    console.log(_playerHSM);
-    const action: any = _playerHSM.hsmInitialize().bind(_playerHSM);
-    dispatch(action).then(() => {
-      console.log('return from hsmInitialize');
-      // const hsmInitializationComplete = hsmInitialized();
-      // console.log('69696969 - end of launchHSM, hsmInitializationComplete = ' + hsmInitializationComplete);
-    });
+    dispatch(bspCreatePlayerHsm());
+    // const _playerHSM = new PlayerHSM('playerHSM', startPlayback, restartPlayback, postMessage, queueHsmEvent);
+    // console.log(_playerHSM);
+    // const action: any = _playerHSM.hsmInitialize().bind(_playerHSM);
+    // dispatch(action).then(() => {
+    //   console.log('return from hsmInitialize');
+    //   // const hsmInitializationComplete = hsmInitialized();
+    //   // console.log('69696969 - end of launchHSM, hsmInitializationComplete = ' + hsmInitializationComplete);
+    // });
   });
 }
 
-function startPlayback() {
+// function startPlayback() {
 
-  return (dispatch: any, getState: any) => {
-    console.log('startPlayback');
-  };
-}
+//   return (dispatch: any, getState: any) => {
+//     console.log('startPlayback');
+//   };
+// }
 
-function restartPlayback(presentationName: string): Promise<void> {
-  return Promise.resolve();
-}
+// function restartPlayback(presentationName: string): Promise<void> {
+//   return Promise.resolve();
+// }
 
 export function postMessage(event: ArEventType) {
   return ((dispatch: any) => {

@@ -5,7 +5,6 @@ import {
 } from '../../type';
 import { addHsm } from '../../model/hsm';
 import { BsBspModelBaseAction, setActiveHState } from '../../model';
-import { BsHState } from './hState';
 
 export const bspCreateHsm = (
   hsmId: string,
@@ -28,7 +27,7 @@ export function bspInitializeHsm(
   initialPseudoStateHandler: () => void,
 ): any {
 
-  let activeState: BsHState | null = null;
+  let activeState: BspHState | null = null;
 
   return ((dispatch: any) => {
 
@@ -48,7 +47,7 @@ export function bspInitializeHsm(
           then((aState: any) => {
             activeState = aState; // TEDTODO - set it on redux here?
             const hsm = getHsmById(hsmId);
-            hsm.activeStateId = (activeState as BsHState).id;
+            hsm.activeStateId = (activeState as BspHState).id;
             const promise = dispatch(completeHsmInitialization(
               hsmId,
               getHState(hsm.activeStateId),

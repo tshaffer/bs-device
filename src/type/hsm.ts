@@ -13,7 +13,7 @@ export interface BspHsm {
 
 export interface BspHState {
   id: string;
-  stateMachineId: string;
+  hsmId: string;
   topStateId: string;
   superStateId: string;
 }

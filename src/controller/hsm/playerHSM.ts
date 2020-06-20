@@ -1,127 +1,131 @@
-import { Action } from 'redux';
 
-import { BsHSM } from './hsm';
-import { HState, HSMStateData } from '../../type/hsm';
-import { ArEventType } from '../../type/base';
-import { BsHState, STTopEventHandler } from './hState';
+import { bspCreateHsm } from './hsm';
+import { bspCreateHState } from './hState';
 
-export class PlayerHSM extends BsHSM {
+export const bspCreatePlayerHsm = (): any => {
+  return ((dispatch: any) => {
+    dispatch(bspCreateHsm('player', 'player'));
+    dispatch(bspCreateHState('Top', 'player'));
+  });
+};
 
-  type: string;
-  stTop: HState;
-  stPlayer: HState;
-  stPlaying: HState;
-  stWaiting: HState;
+// export class PlayerHSM extends BsHSM {
 
-  startPlayback: () => any;
-  restartPlayback: (presentationName: string) => Promise<void>;
-  postMessage: (event: any) => Action;
+//   type: string;
+//   stTop: HState;
+//   stPlayer: HState;
+//   stPlaying: HState;
+//   stWaiting: HState;
 
-  constructor(
-    hsmId: string,
-    startPlayback: () => any,
-    restartPlayback: (presentationName: string) => Promise<void>,
-    postMessage: (event: ArEventType) => any, // TODO
-    dispatchEvent: any) {
+//   startPlayback: () => any;
+//   restartPlayback: (presentationName: string) => Promise<void>;
+//   postMessage: (event: any) => Action;
 
-    super(hsmId, dispatchEvent);
+//   constructor(
+//     hsmId: string,
+//     startPlayback: () => any,
+//     restartPlayback: (presentationName: string) => Promise<void>,
+//     postMessage: (event: ArEventType) => any, // TODO
+//     dispatchEvent: any) {
 
-    this.type = 'player';
+//     super(hsmId, dispatchEvent);
 
-    this.stTop = new BsHState(this, 'Top');
-    this.stTop.HStateEventHandler = STTopEventHandler;
+//     this.type = 'player';
 
-    this.initialPseudoStateHandler = this.initializePlayerStateMachine;
+//     this.stTop = new BsHState(this, 'Top');
+//     this.stTop.HStateEventHandler = STTopEventHandler;
 
-    this.stPlayer = new STPlayer(this, 'Player', this.stTop);
-    this.stPlaying = new STPlaying(this, 'Playing', this.stPlayer);
-    this.stWaiting = new STWaiting(this, 'Waiting', this.stPlayer);
+//     this.initialPseudoStateHandler = this.initializePlayerStateMachine;
 
-    this.topState = this.stTop;
+//     this.stPlayer = new STPlayer(this, 'Player', this.stTop);
+//     this.stPlaying = new STPlaying(this, 'Playing', this.stPlayer);
+//     this.stWaiting = new STWaiting(this, 'Waiting', this.stPlayer);
 
-    this.startPlayback = startPlayback;
-    this.restartPlayback = restartPlayback;
-    this.postMessage = postMessage;
-  }
+//     this.topState = this.stTop;
 
-  initializePlayerStateMachine(): any {
-    return (dispatch: any) => {
-      return this.restartPlayback('')
-        .then(() => {
-          return Promise.resolve(this.stPlaying);
-        });
-    };
-  }
-}
+//     this.startPlayback = startPlayback;
+//     this.restartPlayback = restartPlayback;
+//     this.postMessage = postMessage;
+//   }
 
-class STPlayer extends BsHState {
+//   initializePlayerStateMachine(): any {
+//     return (dispatch: any) => {
+//       return this.restartPlayback('')
+//         .then(() => {
+//           return Promise.resolve(this.stPlaying);
+//         });
+//     };
+//   }
+// }
 
-  constructor(stateMachine: PlayerHSM, id: string, superState: HState) {
+// class STPlayer extends BsHState {
 
-    super(stateMachine, id);
+//   constructor(stateMachine: PlayerHSM, id: string, superState: HState) {
 
-    this.HStateEventHandler = this.STPlayerEventHandler;
-    this.superState = superState;
-  }
+//     super(stateMachine, id);
 
-  STPlayerEventHandler(event: ArEventType, stateData: HSMStateData): any {
+//     this.HStateEventHandler = this.STPlayerEventHandler;
+//     this.superState = superState;
+//   }
 
-    return (dispatch: any) => {
-      stateData.nextStateId = null;
+//   STPlayerEventHandler(event: ArEventType, stateData: HSMStateData): any {
 
-      stateData.nextStateId = this.superState;
-      return 'SUPER';
-    };
-  }
-}
+//     return (dispatch: any) => {
+//       stateData.nextStateId = null;
 
-class STPlaying extends BsHState {
+//       stateData.nextStateId = this.superState;
+//       return 'SUPER';
+//     };
+//   }
+// }
 
-  constructor(stateMachine: PlayerHSM, id: string, superState: HState) {
-    super(stateMachine, id);
+// class STPlaying extends BsHState {
 
-    this.HStateEventHandler = this.STPlayingEventHandler;
-    this.superState = superState;
-  }
+//   constructor(stateMachine: PlayerHSM, id: string, superState: HState) {
+//     super(stateMachine, id);
 
-  STPlayingEventHandler(event: ArEventType, stateData: HSMStateData): any {
+//     this.HStateEventHandler = this.STPlayingEventHandler;
+//     this.superState = superState;
+//   }
 
-    return (dispatch: any, getState: any) => {
-      stateData.nextStateId = null;
+//   STPlayingEventHandler(event: ArEventType, stateData: HSMStateData): any {
 
-      console.log('***** - STPlayingEventHandler, event type ' + event.EventType);
-      stateData.nextStateId = this.superState;
-      return 'SUPER';
-    };
-  }
+//     return (dispatch: any, getState: any) => {
+//       stateData.nextStateId = null;
 
-}
+//       console.log('***** - STPlayingEventHandler, event type ' + event.EventType);
+//       stateData.nextStateId = this.superState;
+//       return 'SUPER';
+//     };
+//   }
 
-class STWaiting extends BsHState {
+// }
 
-  constructor(stateMachine: PlayerHSM, id: string, superState: HState) {
-    super(stateMachine, id);
+// class STWaiting extends BsHState {
 
-    this.HStateEventHandler = this.STWaitingEventHandler;
-    this.superState = superState;
-  }
+//   constructor(stateMachine: PlayerHSM, id: string, superState: HState) {
+//     super(stateMachine, id);
 
-  STWaitingEventHandler(event: ArEventType, stateData: HSMStateData): any {
+//     this.HStateEventHandler = this.STWaitingEventHandler;
+//     this.superState = superState;
+//   }
 
-    return (dispatch: any) => {
-      stateData.nextStateId = null;
+//   STWaitingEventHandler(event: ArEventType, stateData: HSMStateData): any {
 
-      if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
-        console.log(this.id + ': entry signal');
-        return 'HANDLED';
-      } else if (event.EventType && event.EventType === 'TRANSITION_TO_PLAYING') {
-        console.log(this.id + ': TRANSITION_TO_PLAYING event received');
-        stateData.nextStateId = (this.stateMachine as PlayerHSM).stPlaying;
-        return 'TRANSITION';
-      }
+//     return (dispatch: any) => {
+//       stateData.nextStateId = null;
 
-      stateData.nextStateId = this.superState;
-      return 'SUPER';
-    };
-  }
-}
+//       if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
+//         console.log(this.id + ': entry signal');
+//         return 'HANDLED';
+//       } else if (event.EventType && event.EventType === 'TRANSITION_TO_PLAYING') {
+//         console.log(this.id + ': TRANSITION_TO_PLAYING event received');
+//         stateData.nextStateId = (this.stateMachine as PlayerHSM).stPlaying;
+//         return 'TRANSITION';
+//       }
+
+//       stateData.nextStateId = this.superState;
+//       return 'SUPER';
+//     };
+//   }
+// }
