@@ -5,6 +5,7 @@ import { restartPlayback } from '../player';
 import { getHStateById } from '../../selector/hsm';
 import { BspHState } from '../../type';
 import { isNil } from 'lodash';
+import { setHsmTop } from '../../model';
 
 export const bspCreatePlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
@@ -14,6 +15,8 @@ export const bspCreatePlayerHsm = (): any => {
     dispatch(bspCreateHState('Top', 'player'));
     const stTop: BspHState | null = getHStateById(getState(), 'Top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
+
+    dispatch(setHsmTop('player', stTopId));
 
     dispatch(bspCreateHState('Player', 'player'));
     const stPlayer: BspHState | null = getHStateById(getState(), 'Player');

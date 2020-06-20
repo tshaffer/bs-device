@@ -31,4 +31,5 @@ export interface HSMStateData {
 export interface BspHsmState {
   hsmById: BspHsmMap;
   hStateById: BspHStateMap;
+  activeHStateByHsm: BspHStateMap;
 }

@@ -10,7 +10,10 @@ import {
 import {
   BsBspModelAction,
 } from './baseAction';
-import { isObject } from 'lodash';
+import {
+  cloneDeep,
+  isObject,
+} from 'lodash';
 import { combineReducers } from 'redux';
 
 // ------------------------------------
@@ -18,17 +21,36 @@ import { combineReducers } from 'redux';
 // ------------------------------------
 
 export const ADD_HSM: string = 'ADD_HSM';
+export const SET_HSM_TOP: string = 'SET_HSM_TOP';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
 
 export type AddHsmAction = BsBspModelAction<Partial<BspHsm>>;
-
 export function addHsm(
   hsm: BspHsm,
 ): AddHsmAction {
   return {
     type: ADD_HSM,
     payload: hsm,
+  };
+}
+
+interface SetHsmTopActionParams {
+  hsmId: string;
+  topStateId: string;
+}
+
+export type SetHsmTopAction = BsBspModelAction<{}>;
+export function setHsmTop(
+  hsmId: string,
+  topStateId: string,
+): SetHsmTopAction {
+  return {
+    type: SET_HSM_TOP,
+    payload: {
+      hsmId,
+      topStateId,
+    }
   };
 }
 
@@ -62,12 +84,19 @@ export function setActiveHState(
 const initialHsmByIdState: BspHsmMap = {};
 const hsmById = (
   state: BspHsmMap = initialHsmByIdState,
-  action: AddHsmAction
+  action: AddHsmAction | SetHsmTopAction
 ): BspHsmMap => {
   switch (action.type) {
     case ADD_HSM: {
       const id: string = (action.payload as BspHsm).id;
       return { ...state, [id]: (action.payload as BspHsm) };
+    }
+    case SET_HSM_TOP: {
+      const { hsmId, topStateId } = action.payload as SetHsmTopActionParams;
+      const newState = cloneDeep(state) as BspHsmMap;
+      const hsm: BspHsm = newState[hsmId];
+      hsm.topStateId = topStateId;
+      return newState;
     }
     default:
       return state;
