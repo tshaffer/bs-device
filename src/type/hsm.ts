@@ -1,6 +1,11 @@
+import { BspMap } from './base';
+
+export type BspHsmMap = BspMap<BspHsm>;
+export type BspHStateMap = BspMap<BspHState>;
 
 export interface BspHsm {
-  hsmId: string;
+  id: string;
+  type: string;
   topStateId: string;
   activeStateId: string | null;
   initialized: boolean;
@@ -24,8 +29,8 @@ export interface HSMStateData {
 }
 
 export interface BspHsmState {
-  hsmIdList: HSMIdList[];
-  hStatesById: HStateMap;
+  hsmById: BspHsmMap;
+  hStateById: HStateMap;
 }
 
 export interface HStateMap {

@@ -1,26 +1,27 @@
 /** @module Types:base */
 
 import { DmState } from '@brightsign/bsdatamodel';
-
 import { BspHsmState } from './hsm';
 
-/** @internal */
-/** @private */
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
 
-/** @internal */
-/** @private */
+export interface BsBspModelState {
+  hsmState: BspHsmState[];
+}
+
 export interface BsBspState {
   bsdm: DmState;
   bsPlayer: BsBspModelState;
 }
 
-/** @internal */
-/** @private */
-export interface BsBspModelState {
-  hsmState: BspHsmState[];
+export interface BspBaseObject {
+  id: string;
+}
+
+export interface BspMap<T extends BspBaseObject> {
+  [id: string]: T;    // really '[id:BsDmId]: T;' -- but Typescript doesn't like that, even though BsDmId = string
 }
 
 export interface ArEventType {

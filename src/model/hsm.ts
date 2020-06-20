@@ -1,17 +1,13 @@
 /** @module Model:template */
 
 import {
-  // HSMList,
-  HSM,
-  // HStateMap,
   BspHsmState,
-  IHSMList,
   BspHsm,
-  IHStateMap,
-  // BsBrightSignPlayerModelState,
+  BspHsmMap,
+  BspHStateMap,
+  BspHState,
 } from '../type';
 import {
-  BsBspModelBatchAction,
   BsBspModelAction,
 } from './baseAction';
 import { isObject } from 'lodash';
@@ -21,20 +17,13 @@ import { combineReducers } from 'redux';
 // Constants
 // ------------------------------------
 
-/** @internal */
-/** @private */
 export const ADD_HSM: string = 'ADD_HSM';
+export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
 
-/** @internal */
-/** @private */
-// export type AddHsmAction = BsBrightSignPlayerModelAction<Partial<BsBrightSignPlayerModelState>>;
-// export type AddHsmAction = BsBrightSignPlayerModelAction<HSM>;
-export type AddHsmAction = BsBspModelAction<Partial<HSM>>;
+export type AddHsmAction = BsBspModelAction<Partial<BspHsm>>;
 
-/** @internal */
-/** @private */
-export function addHSM(
+export function addHsm(
   hsm: BspHsm,
 ): AddHsmAction {
   return {
@@ -43,35 +32,74 @@ export function addHSM(
   };
 }
 
-/** @internal */
-/** @private */
-export type SetActiveHStateAction = BsBspModelAction<any>;
-export function setActiveHState(hsmId: string, activeState: any): SetActiveHStateAction {
+export type AddHStateAction = BsBspModelAction<Partial<BspHState>>;
+export function addHState(
+  hState: BspHState,
+): AddHStateAction {
+  return {
+    type: ADD_HSTATE,
+    payload: hState,
+  };
+}
+
+export type SetActiveHStateAction = BsBspModelAction<BspHState | null | any>;
+export function setActiveHState(
+  hsmId: string,
+  activeState: BspHState | null,
+): SetActiveHStateAction {
   return {
     type: SET_ACTIVE_HSTATE,
     payload: {
-      hsmId,
+      id: hsmId,
       activeState,
-    },
+    }
   };
 }
 
 // ------------------------------------
 // Reducer
 // ------------------------------------
-
-const initialHsmListState: IHSMList = [];
-/** @internal */
-/** @private */
-const hsmList = (
-  state: IHSMList = initialHsmListState,
-  action: BsBspModelBatchAction) => {
+const initialHsmByIdState: BspHsmMap = {};
+const hsmById = (
+  state: BspHsmMap = initialHsmByIdState,
+  action: AddHsmAction
+): BspHsmMap => {
   switch (action.type) {
     case ADD_HSM: {
-      const newState: IHSMList = state.slice(0);
-      // TEDTODO
-      // newState.push(action.payload);
-      newState.push(action.payload as any);
+      const id: string = (action.payload as BspHsm).id;
+      return { ...state, [id]: (action.payload as BspHsm) };
+    }
+    default:
+      return state;
+  }
+};
+
+const initialHStateByIdState: BspHStateMap = {};
+const hStateById = (
+  state: BspHStateMap = initialHStateByIdState,
+  action: AddHStateAction,
+): BspHStateMap => {
+  switch (action.type) {
+    case ADD_HSTATE: {
+      const id: string = (action.payload as BspHState).id;
+      return { ...state, [id]: (action.payload as BspHState) };
+    }
+    default:
+      return state;
+  }
+};
+
+const initialActiveHStateByHsm: BspHStateMap = {};
+const activeHStateByHsm = (
+  state: BspHStateMap = initialActiveHStateByHsm,
+  action: SetActiveHStateAction,
+): BspHStateMap => {
+  switch (action.type) {
+    case SET_ACTIVE_HSTATE: {
+      const newState: BspHStateMap = Object.assign({}, state);
+      const hsmId: string = (action.payload as BspHState).stateMachineId;
+      const activeState: BspHState = action.payload as BspHState;
+      newState[hsmId] = activeState;
       return newState;
     }
     default:
@@ -79,35 +107,15 @@ const hsmList = (
   }
 };
 
-const initialHStateState: IHStateMap = {};
-export const hStatesById = (
-  state: IHStateMap = initialHStateState,
-  action: BsBspModelBatchAction) => {
-    switch (action.type) {
-      case SET_ACTIVE_HSTATE: {
-        const newState: IHStateMap = Object.assign({}, state);
-        const { hsmId, activeState } = action.payload as any;
-        newState[hsmId] = activeState;
-        return newState;
-      }
-      default:
-        return state;
-    }
-};
-
 export const hsmReducer = combineReducers<BspHsmState>(
-  { hsmList, hStatesById });
-
-/** @internal */
-/** @private */
-// export default hsmReducer;
+  { hsmById, hStateById, activeHStateByHsm });
 
 // -----------------------------------------------------------------------
 // Validators
 // -----------------------------------------------------------------------
 /** @internal */
 /** @private */
-export const isValidHSMs = (state: any): boolean => {
+export const isValidHsmState = (state: any): boolean => {
   return isObject(state);
   // TEDTODO
 };

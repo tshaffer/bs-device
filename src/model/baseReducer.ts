@@ -13,7 +13,7 @@ import {
 } from './baseAction';
 import {
   hsmReducer,
-  isValidHSMs
+  isValidHsmState
 } from './hsm';
 
 // -----------------------------------------------------------------------
@@ -61,7 +61,7 @@ export const bsBspReducer = enableBatching(combineReducers<BsBspModelState>({
 /** @private */
 export function isValidBsBrightSignPlayerModelState(state: any): boolean {
   return !isNil(state)
-    && state.hasOwnProperty('hsm') && isValidHSMs(state.hsmState);
+    && state.hasOwnProperty('hsm') && isValidHsmState(state.hsmState);
 }
 
 /** @internal */
