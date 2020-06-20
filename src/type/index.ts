@@ -2,3 +2,4 @@
 
 export * from './base';
 export * from './hsm';
+export * from './hsmTypes';
