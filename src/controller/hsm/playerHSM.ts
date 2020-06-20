@@ -3,16 +3,35 @@ import { bspCreateHsm, bspInitializeHsm } from './hsm';
 import { bspCreateHState } from './hState';
 import { restartPlayback } from '../player';
 import { getHStateById } from '../../selector/hsm';
+import { BspHState } from '../../type';
+import { isNil } from 'lodash';
 
 export const bspCreatePlayerHsm = (): any => {
-  return ((dispatch: any) => {
+  return ((dispatch: any, getState: any) => {
     console.log('invoke bspCreatePlayerHsm');
     dispatch(bspCreateHsm('player', 'player'));
+
     dispatch(bspCreateHState('Top', 'player'));
+    const stTop: BspHState | null = getHStateById(getState(), 'Top');
+    const stTopId: string = isNil(stTop) ? '' : stTop.id;
 
     dispatch(bspCreateHState('Player', 'player'));
+    const stPlayer: BspHState | null = getHStateById(getState(), 'Player');
+    if (!isNil(stPlayer)) {
+      stPlayer.superStateId = stTopId;
+    }
+
     dispatch(bspCreateHState('Playing', 'player'));
+    const stPlaying: BspHState | null = getHStateById(getState(), 'Playing');
+    if (!isNil(stPlaying)) {
+      stPlaying.superStateId = isNil(stPlayer) ? '' : stPlayer.id;
+    }
+
     dispatch(bspCreateHState('Waiting', 'player'));
+    const stWaiting: BspHState | null = getHStateById(getState(), 'Waiting');
+    if (!isNil(stWaiting)) {
+      stWaiting.superStateId = isNil(stPlayer) ? '' : stPlayer.id;
+    }
   });
 };
 
