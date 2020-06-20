@@ -30,13 +30,5 @@ export interface HSMStateData {
 
 export interface BspHsmState {
   hsmById: BspHsmMap;
-  hStateById: HStateMap;
-}
-
-export interface HStateMap {
-  [hsmId: string]: string | null;
-}
-
-export interface IHStateMap {
-  [hsmId: string]: string | null;
+  hStateById: BspHStateMap;
 }

@@ -1,7 +1,8 @@
 
-import { bspCreateHsm, bspInitializeHsm, getHState } from './hsm';
+import { bspCreateHsm, bspInitializeHsm } from './hsm';
 import { bspCreateHState } from './hState';
 import { restartPlayback } from '../player';
+import { getHStateById } from '../../selector/hsm';
 
 export const bspCreatePlayerHsm = (): any => {
   return ((dispatch: any) => {
@@ -25,7 +26,7 @@ export const bspInitializePlayerHsm = (): any => {
 };
 
 const initializePlayerStateMachine = (): any => {
-  return (dispatch: any) => {
+  return (dispatch: any, getState: any) => {
     console.log('invoke initializePlayerStateMachine');
 
     // TEDTODO - BIG
@@ -35,7 +36,7 @@ const initializePlayerStateMachine = (): any => {
 
       .then(() => {
         console.log('return from invoking playerStateMachine restartPlayback');
-        return Promise.resolve(getHState('Playing'));
+        return Promise.resolve(getHStateById(getState(), 'Playing'));
     //     return Promise.resolve(this.stPlaying);
       });
   };

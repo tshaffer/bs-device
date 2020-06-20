@@ -8,7 +8,7 @@ export type DeepPartial<T> = {
 };
 
 export interface BsBspModelState {
-  hsmState: BspHsmState[];
+  hsmState: BspHsmState;
 }
 
 export interface BsBspState {
