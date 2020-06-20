@@ -1,6 +1,6 @@
 import { Store } from 'redux';
 import { BsBspState, ArEventType } from '../type/base';
-import { bspCreatePlayerHsm } from './hsm';
+import { bspCreatePlayerHsm, bspInitializePlayerHsm } from './hsm';
 // import { HSM } from '../type';
 
 // let _hsmList: HSM[] = [];
@@ -14,6 +14,7 @@ export function initPlayer(store: Store<BsBspState>) {
 function launchHSM() {
   return ((dispatch: any) => {
     dispatch(bspCreatePlayerHsm());
+    dispatch(bspInitializePlayerHsm());
     // const _playerHSM = new PlayerHSM('playerHSM', startPlayback, restartPlayback, postMessage, queueHsmEvent);
     // console.log(_playerHSM);
     // const action: any = _playerHSM.hsmInitialize().bind(_playerHSM);

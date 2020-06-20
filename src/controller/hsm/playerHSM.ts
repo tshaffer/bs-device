@@ -1,12 +1,40 @@
 
-import { bspCreateHsm } from './hsm';
+import { bspCreateHsm, bspInitializeHsm } from './hsm';
 import { bspCreateHState } from './hState';
 
+// where does this go?
+// bspInitializeHsm
 export const bspCreatePlayerHsm = (): any => {
   return ((dispatch: any) => {
+    console.log('invoke bspCreatePlayerHsm');
     dispatch(bspCreateHsm('player', 'player'));
     dispatch(bspCreateHState('Top', 'player'));
+
+    // create stPlayer
+    // create stPlaying
+    // create stWaiting
+
   });
+};
+
+export const bspInitializePlayerHsm = (): any => {
+  return ((dispatch: any) => {
+    console.log('invoke bspInitializePlayerHsm');
+    dispatch(bspInitializeHsm(
+      'player',
+      initializePlayerStateMachine));
+  });
+};
+
+const initializePlayerStateMachine = (): any => {
+  return (dispatch: any) => {
+    console.log('invoke initializePlayerStateMachine');
+    // return this.restartPlayback('')
+    //   .then(() => {
+    //     return Promise.resolve(this.stPlaying);
+    //   });
+    return Promise.resolve();
+  };
 };
 
 // export class PlayerHSM extends BsHSM {
