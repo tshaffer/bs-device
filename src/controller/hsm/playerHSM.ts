@@ -24,25 +24,25 @@ export const bspCreatePlayerHsm = (): any => {
     dispatch(bspCreateHsm('player', BspHsmType.Player));
 
     dispatch(bspCreateHState('top', BspStateType.Top, 'player'));
-    const stTop: BspHState | null = getHStateById(getState(), 'Top');
+    const stTop: BspHState | null = getHStateById(getState(), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
 
     dispatch(setHsmTop('player', stTopId));
 
     dispatch(bspCreateHState('player', BspStateType.Player, 'player'));
-    const stPlayer: BspHState | null = getHStateById(getState(), 'Player');
+    const stPlayer: BspHState | null = getHStateById(getState(), 'player');
     if (!isNil(stPlayer)) {
       stPlayer.superStateId = stTopId;
     }
 
     dispatch(bspCreateHState('playing', BspStateType.Playing, 'player'));
-    const stPlaying: BspHState | null = getHStateById(getState(), 'Playing');
+    const stPlaying: BspHState | null = getHStateById(getState(), 'playing');
     if (!isNil(stPlaying)) {
       stPlaying.superStateId = isNil(stPlayer) ? '' : stPlayer.id;
     }
 
     dispatch(bspCreateHState('waiting', BspStateType.Waiting, 'player'));
-    const stWaiting: BspHState | null = getHStateById(getState(), 'Waiting');
+    const stWaiting: BspHState | null = getHStateById(getState(), 'waiting');
     if (!isNil(stWaiting)) {
       stWaiting.superStateId = isNil(stPlayer) ? '' : stPlayer.id;
     }
@@ -69,7 +69,7 @@ const initializePlayerStateMachine = (): any => {
 
       .then(() => {
         console.log('return from invoking playerStateMachine restartPlayback');
-        return Promise.resolve(getHStateById(getState(), 'Playing'));
+        return Promise.resolve(getHStateById(getState(), 'playing'));
         //     return Promise.resolve(this.stPlaying);
       });
   };

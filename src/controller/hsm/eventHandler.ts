@@ -1,26 +1,27 @@
 import {
   ArEventType,
-  BsBspState,
+  // BsBspState,
   HSMStateData,
   // BspHsm,
   BspHState,
   BspStateType,
 } from '../../type';
-import {
-  // getHsmById,
-  getHStateById
-} from '../../selector/hsm';
+// import {
+//   // getHsmById,
+//   getHStateById
+// } from '../../selector/hsm';
 import { isNil } from 'lodash';
 import { STPlayerEventHandler, STPlayingEventHandler, STWaitingEventHandler } from './playerHSM';
 
-export const eventHandler = (
-  state: BsBspState,
-  activeStateId: string,
+export const HStateEventHandler = (
+  hState: BspHState,
+  // state: BsBspState,
+  // activeStateId: string,
   event: ArEventType,
   stateData: HSMStateData
 ): any => {
   return ((dispatch: any, getState: any) => {
-    const hState: BspHState | null = getHStateById(state, activeStateId);
+    // const hState: BspHState | null = getHStateById(state, activeStateId);
     if (!isNil(hState)) {
       switch (hState.type) {
         case BspStateType.Top:
@@ -45,4 +46,4 @@ const STTopEventHandler = (hState: BspHState, _: ArEventType, stateData: HSMStat
     stateData.nextStateId = null;
     return 'IGNORED';
   });
-}
+};
