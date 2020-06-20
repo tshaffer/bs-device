@@ -50,7 +50,7 @@ export const enableBatching = (
 };
 
 export const bsBspReducer = enableBatching(combineReducers<BsBspModelState>({
-  hsm: hsmReducer,
+  hsmState: hsmReducer,
 }));
 
 // -----------------------------------------------------------------------
