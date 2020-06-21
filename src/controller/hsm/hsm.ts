@@ -5,7 +5,6 @@ import {
 } from '../../type';
 import { addHsm } from '../../model/hsm';
 import {
-  BsBspModelBaseAction,
   setActiveHState,
   setHsmInitialized
 } from '../../model';
@@ -39,8 +38,7 @@ export function bspInitializeHsm(
 
     console.log('***** HSM.ts#bspInitializeHsm');
 
-    const hStateAction: BsBspModelBaseAction = setActiveHState(hsmId, null);
-    dispatch(hStateAction);
+    dispatch(setActiveHState(hsmId, null));
 
     // execute initial transition
     if (!isNil(initialPseudoStateHandler)) {
@@ -48,9 +46,9 @@ export function bspInitializeHsm(
 
       return dispatch(action).
         then((aState: any) => {
-          activeState = aState; // TEDTODO - set it on redux here?
+          activeState = aState; // TEDTODO - set it on redux here? or is it set in the action??
+          dispatch(setActiveHState(hsmId, activeState));
           const hsm = getHsmById(getState(), hsmId);
-          hsm.activeStateId = (activeState as BspHState).id;
           dispatch(completeHsmInitialization(
             hsmId,
             getHStateById(getState(), hsm.activeStateId),
@@ -128,9 +126,6 @@ function completeHsmInitialization(
           activeState = getHStateById(getState(), stateData.nextStateId) as BspHState;
           reduxActiveState = activeState;
         }
-
-        // restore the target of the initial transition
-        // activeState = entryStates[0];
 
         // retrace the entry path in reverse (desired) order
         while (entryStateIndex >= 0) {

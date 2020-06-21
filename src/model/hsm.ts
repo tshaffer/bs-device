@@ -13,6 +13,7 @@ import {
 import {
   cloneDeep,
   isObject,
+  isNil,
 } from 'lodash';
 import { combineReducers } from 'redux';
 
@@ -124,6 +125,17 @@ const hsmById = (
       hsm.initialized = isInitialized;
       return newState;
     }
+    case SET_ACTIVE_HSTATE: {
+      const newState = Object.assign({}, state);
+      const hsmId: string = (action.payload as any).id;
+      const activeState: BspHState = (action.payload as any).activeState;
+      if (isNil(activeState)) {
+        newState[hsmId].activeStateId = null;
+      } else {
+        newState[hsmId].activeStateId = activeState.id;
+      }
+      return newState;
+    }
     default:
       return state;
   }
@@ -144,19 +156,22 @@ const hStateById = (
   }
 };
 
+// TEDTODO - remove??
 const initialActiveHStateByHsm: BspHStateMap = {};
 const activeHStateByHsm = (
   state: BspHStateMap = initialActiveHStateByHsm,
   action: SetActiveHStateAction,
 ): BspHStateMap => {
   switch (action.type) {
-    case SET_ACTIVE_HSTATE: {
-      const newState: BspHStateMap = Object.assign({}, state);
-      const hsmId: string = (action.payload as BspHState).hsmId;
-      const activeState: BspHState = action.payload as BspHState;
-      newState[hsmId] = activeState;
-      return newState;
-    }
+    // case SET_ACTIVE_HSTATE: {
+    //   const newState: BspHStateMap = Object.assign({}, state);
+    //   // const hsmId: string = (action.payload as BspHState).hsmId;
+    //   const hsmId: string = (action.payload as any).id;
+    //   // const activeState: BspHState = action.payload as BspHState;
+    //   const activeState: BspHState = (action.payload as any).activeState;
+    //   newState[hsmId] = activeState;
+    //   return newState;
+    // }
     default:
       return state;
   }
