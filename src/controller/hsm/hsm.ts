@@ -58,7 +58,6 @@ export function bspInitializeHsm(
               hsmId,
               getHStateById(getState(), hsm.activeStateId),
               getHStateById(getState(), hsm.topStateId),
-              hsm.initialized
             ));
             promise.then(() => {
               const hsmInitializationComplete = hsmInitialized();
@@ -73,12 +72,10 @@ export function bspInitializeHsm(
   });
 }
 
-// TEDTODO - parameters - ids or objects or ??
 function completeHsmInitialization(
   reduxHsmId: string,
   reduxActiveState: BspHState | null,
   reduxTopState: BspHState | null,
-  reduxInitialized: boolean,
 ): any { // returns dispatch -> promise
 
   let action: any;
@@ -101,7 +98,6 @@ function completeHsmInitialization(
       if (isNil(reduxActiveState)) {
         dispatch(setActiveHState(reduxHsmId, null));
         console.log('***** return from HSM.ts#completeHsmInitialization');
-        reduxInitialized = true;
         dispatch(setHsmInitialized(reduxHsmId, true));
         return resolve();
       }
@@ -155,18 +151,13 @@ function completeHsmInitialization(
           // new source state is the current state
           sourceState = entryStates[0];
 
-          // console.log('HSM.ts#initialize: invoke handler with initEvent');
-          // console.log(sourceState.id);
-
           action = HStateEventHandler((sourceState as any), initEvent, stateData);
           status = dispatch(action);
           if (status !== 'TRANSITION') {
             reduxActiveState = sourceState;
             dispatch(setActiveHState(reduxHsmId, reduxActiveState));
             console.log('***** return from HSM.ts#completeHsmInitialization');
-            console.log(self);
             dispatch(setHsmInitialized(reduxHsmId, true));
-            reduxInitialized = true;
             return resolve();
           }
 
