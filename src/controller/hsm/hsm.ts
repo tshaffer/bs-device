@@ -9,7 +9,10 @@ import {
   setHsmInitialized
 } from '../../model';
 import { getHsmById, getHStateById } from '../../selector/hsm';
-import { HStateEventHandler } from './eventHandler';
+import {
+  bspInitialPseudoStateHandler,
+  HStateEventHandler
+} from './eventHandler';
 
 export const bspCreateHsm = (
   hsmId: string,
@@ -42,7 +45,7 @@ export function bspInitializeHsm(
 
     // execute initial transition
     if (!isNil(initialPseudoStateHandler)) {
-      const action = initialPseudoStateHandler();
+      const action = bspInitialPseudoStateHandler(hsmId);
 
       return dispatch(action).
         then((aState: any) => {

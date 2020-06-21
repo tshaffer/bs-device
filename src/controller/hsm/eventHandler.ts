@@ -11,7 +11,15 @@ import {
 //   getHStateById
 // } from '../../selector/hsm';
 import { isNil } from 'lodash';
-import { STPlayerEventHandler, STPlayingEventHandler, STWaitingEventHandler } from './playerHSM';
+import { STPlayerEventHandler, STPlayingEventHandler, STWaitingEventHandler, initializePlayerStateMachine } from './playerHSM';
+
+export const bspInitialPseudoStateHandler = (hsmId: string) => {
+  return (dispatch: any, getState: any) => {
+    if (hsmId === 'player') {
+      return dispatch(initializePlayerStateMachine());
+    }
+  };
+};
 
 export const HStateEventHandler = (
   hState: BspHState,

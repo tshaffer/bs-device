@@ -58,7 +58,7 @@ export const bspInitializePlayerHsm = (): any => {
   });
 };
 
-const initializePlayerStateMachine = (): any => {
+export const initializePlayerStateMachine = (): any => {
   return (dispatch: any, getState: any) => {
     console.log('invoke initializePlayerStateMachine');
 
