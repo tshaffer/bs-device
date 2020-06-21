@@ -4,7 +4,11 @@ import {
   ArEventType,
 } from '../../type';
 import { addHsm } from '../../model/hsm';
-import { BsBspModelBaseAction, setActiveHState } from '../../model';
+import {
+  BsBspModelBaseAction,
+  setActiveHState,
+  setHsmInitialized
+} from '../../model';
 import { getHsmById, getHStateById } from '../../selector/hsm';
 import { HStateEventHandler } from './eventHandler';
 
@@ -63,18 +67,7 @@ export function bspInitializeHsm(
             });
           });
       } else {
-        // TEDTODO
         debugger;
-        // const promise = dispatch(completeHsmInitialization(
-        //   hsmId,
-        //   activeStateId as string,
-        //   topStateId,
-        //   initialized));
-        // promise.then(() => {
-        //   const hsmInitializationComplete = hsmInitialized();
-        //   console.log('969696969 - end of hsmInitialize-1, hsmInitializationComplete: ' + hsmInitializationComplete);
-        //   return resolve();
-        // });
       }
     });
   });
@@ -109,6 +102,7 @@ function completeHsmInitialization(
         dispatch(setActiveHState(reduxHsmId, null));
         console.log('***** return from HSM.ts#completeHsmInitialization');
         reduxInitialized = true;
+        dispatch(setHsmInitialized(reduxHsmId, true));
         return resolve();
       }
 
@@ -171,6 +165,7 @@ function completeHsmInitialization(
             dispatch(setActiveHState(reduxHsmId, reduxActiveState));
             console.log('***** return from HSM.ts#completeHsmInitialization');
             console.log(self);
+            dispatch(setHsmInitialized(reduxHsmId, true));
             reduxInitialized = true;
             return resolve();
           }

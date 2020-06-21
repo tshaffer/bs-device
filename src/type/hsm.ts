@@ -26,12 +26,6 @@ export interface HSMStateData {
   nextStateId: string | null;
 }
 
-export type HSMIdList = string[];
-
-export interface HSMStateData {
-  nextStateId: string | null;
-}
-
 export interface BspHsmState {
   hsmById: BspHsmMap;
   hStateById: BspHStateMap;

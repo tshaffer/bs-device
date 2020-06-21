@@ -22,6 +22,7 @@ import { combineReducers } from 'redux';
 
 export const ADD_HSM: string = 'ADD_HSM';
 export const SET_HSM_TOP: string = 'SET_HSM_TOP';
+export const SET_HSM_INITIALIZED: string = 'SET_HSM_INITIALIZED';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
 
@@ -39,7 +40,6 @@ interface SetHsmTopActionParams {
   hsmId: string;
   topStateId: string;
 }
-
 export type SetHsmTopAction = BsBspModelAction<{}>;
 export function setHsmTop(
   hsmId: string,
@@ -54,13 +54,22 @@ export function setHsmTop(
   };
 }
 
-export type AddHStateAction = BsBspModelAction<Partial<BspHState>>;
-export function addHState(
-  hState: BspHState,
-): AddHStateAction {
+// TEDTODO - shouldn't need an interface for each params object
+interface SetHsmIsInitializedActionParams {
+  hsmId: string;
+  isInitialized: boolean;
+}
+export type SetHsmInitializedAction = BsBspModelAction<{}>;
+export function setHsmInitialized(
+  hsmId: string,
+  isInitialized: boolean,
+): SetHsmInitializedAction {
   return {
-    type: ADD_HSTATE,
-    payload: hState,
+    type: SET_HSM_INITIALIZED,
+    payload: {
+      hsmId,
+      isInitialized,
+    }
   };
 }
 
@@ -78,13 +87,23 @@ export function setActiveHState(
   };
 }
 
+export type AddHStateAction = BsBspModelAction<Partial<BspHState>>;
+export function addHState(
+  hState: BspHState,
+): AddHStateAction {
+  return {
+    type: ADD_HSTATE,
+    payload: hState,
+  };
+}
+
 // ------------------------------------
 // Reducer
 // ------------------------------------
 const initialHsmByIdState: BspHsmMap = {};
 const hsmById = (
   state: BspHsmMap = initialHsmByIdState,
-  action: AddHsmAction | SetHsmTopAction
+  action: AddHsmAction | SetHsmTopAction | SetHsmInitializedAction
 ): BspHsmMap => {
   switch (action.type) {
     case ADD_HSM: {
@@ -96,6 +115,13 @@ const hsmById = (
       const newState = cloneDeep(state) as BspHsmMap;
       const hsm: BspHsm = newState[hsmId];
       hsm.topStateId = topStateId;
+      return newState;
+    }
+    case SET_HSM_INITIALIZED: {
+      const { hsmId, isInitialized } = action.payload as SetHsmIsInitializedActionParams;
+      const newState = cloneDeep(state) as BspHsmMap;
+      const hsm: BspHsm = newState[hsmId];
+      hsm.initialized = isInitialized;
       return newState;
     }
     default:
