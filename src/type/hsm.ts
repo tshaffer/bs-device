@@ -19,7 +19,6 @@ export interface BspHState {
   id: string;
   type: BspStateType;
   hsmId: string;
-  topStateId: string;
   superStateId: string;
 }
 
