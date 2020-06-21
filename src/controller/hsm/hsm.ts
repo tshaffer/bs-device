@@ -39,36 +39,32 @@ export function bspInitializeHsm(
 
     console.log('***** HSM.ts#bspInitializeHsm');
 
-    // TEDTODO - don't return a new promsie
-    return new Promise((resolve, reject) => {
+    const hStateAction: BsBspModelBaseAction = setActiveHState(hsmId, null);
+    dispatch(hStateAction);
 
-      const hStateAction: BsBspModelBaseAction = setActiveHState(hsmId, null);
-      dispatch(hStateAction);
+    // execute initial transition
+    if (!isNil(initialPseudoStateHandler)) {
+      const action = initialPseudoStateHandler();
 
-      // execute initial transition
-      if (!isNil(initialPseudoStateHandler)) {
-        const action = initialPseudoStateHandler();
-
-        dispatch(action).
-          then((aState: any) => {
-            activeState = aState; // TEDTODO - set it on redux here?
-            const hsm = getHsmById(getState(), hsmId);
-            hsm.activeStateId = (activeState as BspHState).id;
-            const promise = dispatch(completeHsmInitialization(
-              hsmId,
-              getHStateById(getState(), hsm.activeStateId),
-              getHStateById(getState(), hsm.topStateId),
-            ));
-            promise.then(() => {
-              const hsmInitializationComplete = hsmInitialized();
-              console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
-              return resolve();
-            });
+      return dispatch(action).
+        then((aState: any) => {
+          activeState = aState; // TEDTODO - set it on redux here?
+          const hsm = getHsmById(getState(), hsmId);
+          hsm.activeStateId = (activeState as BspHState).id;
+          const promise = dispatch(completeHsmInitialization(
+            hsmId,
+            getHStateById(getState(), hsm.activeStateId),
+            getHStateById(getState(), hsm.topStateId),
+          ));
+          promise.then(() => {
+            const hsmInitializationComplete = hsmInitialized();
+            console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
+            return Promise.resolve();
           });
-      } else {
-        debugger;
-      }
-    });
+        });
+    } else {
+      debugger;
+    }
   });
 }
 
