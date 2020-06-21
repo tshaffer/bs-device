@@ -51,16 +51,14 @@ export function bspInitializeHsm(
           activeState = aState; // TEDTODO - set it on redux here?
           const hsm = getHsmById(getState(), hsmId);
           hsm.activeStateId = (activeState as BspHState).id;
-          const promise = dispatch(completeHsmInitialization(
+          dispatch(completeHsmInitialization(
             hsmId,
             getHStateById(getState(), hsm.activeStateId),
             getHStateById(getState(), hsm.topStateId),
           ));
-          promise.then(() => {
-            const hsmInitializationComplete = hsmInitialized();
-            console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
-            return Promise.resolve();
-          });
+          const hsmInitializationComplete = hsmInitialized();
+          console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
+          return Promise.resolve();
         });
     } else {
       debugger;
@@ -78,90 +76,87 @@ function completeHsmInitialization(
 
   return ((dispatch: any, getState: any) => {
 
-    return new Promise((resolve, reject) => {
-      const stateData: HSMStateData = { nextStateId: null };
+    const stateData: HSMStateData = { nextStateId: null };
 
-      // empty event used to get super states
-      const emptyEvent: ArEventType = { EventType: 'EMPTY_SIGNAL' };
+    // empty event used to get super states
+    const emptyEvent: ArEventType = { EventType: 'EMPTY_SIGNAL' };
 
-      // entry event
-      const entryEvent: ArEventType = { EventType: 'ENTRY_SIGNAL' };
+    // entry event
+    const entryEvent: ArEventType = { EventType: 'ENTRY_SIGNAL' };
 
-      // init event
-      const initEvent: ArEventType = { EventType: 'INIT_SIGNAL' };
+    // init event
+    const initEvent: ArEventType = { EventType: 'INIT_SIGNAL' };
 
-      // if there is no activeState, the playlist is empty
-      if (isNil(reduxActiveState)) {
-        dispatch(setActiveHState(reduxHsmId, null));
-        console.log('***** return from HSM.ts#completeHsmInitialization');
-        dispatch(setHsmInitialized(reduxHsmId, true));
-        return resolve();
+    // if there is no activeState, the playlist is empty
+    if (isNil(reduxActiveState)) {
+      dispatch(setActiveHState(reduxHsmId, null));
+      console.log('***** return from HSM.ts#completeHsmInitialization');
+      dispatch(setHsmInitialized(reduxHsmId, true));
+      return;
+    }
+
+    if (!isNil(reduxActiveState)) {
+      let activeState: BspHState = reduxActiveState;
+
+      // start at the top state
+      if (isNil(reduxTopState)) {
+        debugger;
       }
+      let sourceState = reduxTopState;
 
-      if (!isNil(reduxActiveState)) {
-        let activeState: BspHState = reduxActiveState;
+      while (true) {
 
-        // start at the top state
-        if (isNil(reduxTopState)) {
-          // TODO
-          debugger;
-        }
-        let sourceState = reduxTopState;
+        const entryStates = [];
+        let entryStateIndex = 0;
 
-        while (true) {
+        // target of the initial transition
+        entryStates[0] = activeState;
 
-          const entryStates = [];
-          let entryStateIndex = 0;
+        // send an empty event to get the super state
+        action = HStateEventHandler((reduxActiveState as any), emptyEvent, stateData);
+        status = dispatch(action);
 
-          // target of the initial transition
-          entryStates[0] = activeState;
+        activeState = getHStateById(getState(), stateData.nextStateId) as BspHState;
+        reduxActiveState = activeState;
 
-          // send an empty event to get the super state
+        // walk up the tree until the current source state is hit
+        while (activeState.id !== (sourceState as BspHState).id) {
+          entryStateIndex = entryStateIndex + 1;
+          entryStates[entryStateIndex] = activeState;
           action = HStateEventHandler((reduxActiveState as any), emptyEvent, stateData);
           status = dispatch(action);
-
-          activeState = getHStateById(getState(), stateData.nextStateId) as BspHState;
-          reduxActiveState = activeState;
-
-          // walk up the tree until the current source state is hit
-          while (activeState.id !== (sourceState as BspHState).id) {
-            entryStateIndex = entryStateIndex + 1;
-            entryStates[entryStateIndex] = activeState;
-            action = HStateEventHandler((reduxActiveState as any), emptyEvent, stateData);
-            status = dispatch(action);
-            activeState = getHStateById(getState(), stateData.nextStateId) as BspHState;
-            reduxActiveState = activeState;
-          }
-
-          // restore the target of the initial transition
-          // activeState = entryStates[0];
-
-          // retrace the entry path in reverse (desired) order
-          while (entryStateIndex >= 0) {
-            const entryState = entryStates[entryStateIndex];
-            action = HStateEventHandler((entryState as any), entryEvent, stateData);
-            status = dispatch(action);
-            entryStateIndex = entryStateIndex - 1;
-          }
-
-          // new source state is the current state
-          sourceState = entryStates[0];
-
-          action = HStateEventHandler((sourceState as any), initEvent, stateData);
-          status = dispatch(action);
-          if (status !== 'TRANSITION') {
-            reduxActiveState = sourceState;
-            dispatch(setActiveHState(reduxHsmId, reduxActiveState));
-            console.log('***** return from HSM.ts#completeHsmInitialization');
-            dispatch(setHsmInitialized(reduxHsmId, true));
-            return resolve();
-          }
-
           activeState = getHStateById(getState(), stateData.nextStateId) as BspHState;
           reduxActiveState = activeState;
         }
+
+        // restore the target of the initial transition
+        // activeState = entryStates[0];
+
+        // retrace the entry path in reverse (desired) order
+        while (entryStateIndex >= 0) {
+          const entryState = entryStates[entryStateIndex];
+          action = HStateEventHandler((entryState as any), entryEvent, stateData);
+          status = dispatch(action);
+          entryStateIndex = entryStateIndex - 1;
+        }
+
+        // new source state is the current state
+        sourceState = entryStates[0];
+
+        action = HStateEventHandler((sourceState as any), initEvent, stateData);
+        status = dispatch(action);
+        if (status !== 'TRANSITION') {
+          reduxActiveState = sourceState;
+          dispatch(setActiveHState(reduxHsmId, reduxActiveState));
+          console.log('***** return from HSM.ts#completeHsmInitialization');
+          dispatch(setHsmInitialized(reduxHsmId, true));
+          return;
+        }
+
+        activeState = getHStateById(getState(), stateData.nextStateId) as BspHState;
+        reduxActiveState = activeState;
       }
-    });
+    }
   });
 }
 
