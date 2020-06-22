@@ -53,14 +53,20 @@ export function isValidBsBrightSignPlayerModelStateShallow(state: any): boolean;
 
 /** @module Model:template */
 export const ADD_HSM: string;
+export const SET_HSM_TOP: string;
+export const SET_HSM_INITIALIZED: string;
 export const ADD_HSTATE = "ADD_HSTATE";
 export const SET_ACTIVE_HSTATE = "SET_ACTIVE_HSTATE";
 export type AddHsmAction = BsBspModelAction<Partial<BspHsm>>;
 export function addHsm(hsm: BspHsm): AddHsmAction;
-export type AddHStateAction = BsBspModelAction<Partial<BspHState>>;
-export function addHState(hState: BspHState): AddHStateAction;
+export type SetHsmTopAction = BsBspModelAction<{}>;
+export function setHsmTop(hsmId: string, topStateId: string): SetHsmTopAction;
+export type SetHsmInitializedAction = BsBspModelAction<Partial<BspHsm>>;
+export function setHsmInitialized(id: string, initialized: boolean): SetHsmInitializedAction;
 export type SetActiveHStateAction = BsBspModelAction<BspHState | null | any>;
 export function setActiveHState(hsmId: string, activeState: BspHState | null): SetActiveHStateAction;
+export type AddHStateAction = BsBspModelAction<Partial<BspHState>>;
+export function addHState(hState: BspHState): AddHStateAction;
 export const hsmReducer: import("redux").Reducer<BspHsmState>;
 /** @private */
 export const isValidHsmState: (state: any) => boolean;
@@ -70,7 +76,7 @@ export type DeepPartial<T> = {
     [P in keyof T]?: DeepPartial<T[P]>;
 };
 export interface BsBspModelState {
-    hsmState: BspHsmState[];
+    hsmState: BspHsmState;
 }
 export interface BsBspState {
     bsdm: DmState;
@@ -92,32 +98,33 @@ export type BspHsmMap = BspMap<BspHsm>;
 export type BspHStateMap = BspMap<BspHState>;
 export interface BspHsm {
     id: string;
-    type: string;
+    type: BspHsmType;
     topStateId: string;
     activeStateId: string | null;
     initialized: boolean;
 }
 export interface BspHState {
     id: string;
+    type: BspStateType;
     hsmId: string;
-    topStateId: string;
     superStateId: string;
 }
 export interface HSMStateData {
     nextStateId: string | null;
 }
-export type HSMIdList = string[];
-export interface HSMStateData {
-    nextStateId: string | null;
-}
 export interface BspHsmState {
     hsmById: BspHsmMap;
-    hStateById: HStateMap;
+    hStateById: BspHStateMap;
+    activeHStateByHsm: BspHStateMap;
 }
-export interface HStateMap {
-    [hsmId: string]: string | null;
+
+export class BspHsmType {
+    static Player: string;
 }
-export interface IHStateMap {
-    [hsmId: string]: string | null;
+export class BspStateType {
+    static Top: string;
+    static Player: string;
+    static Playing: string;
+    static Waiting: string;
 }
 

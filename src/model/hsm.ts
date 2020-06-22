@@ -55,21 +55,16 @@ export function setHsmTop(
   };
 }
 
-// TEDTODO - shouldn't need an interface for each params object
-interface SetHsmIsInitializedActionParams {
-  hsmId: string;
-  isInitialized: boolean;
-}
-export type SetHsmInitializedAction = BsBspModelAction<{}>;
+export type SetHsmInitializedAction = BsBspModelAction<Partial<BspHsm>>;
 export function setHsmInitialized(
-  hsmId: string,
-  isInitialized: boolean,
+  id: string,
+  initialized: boolean,
 ): SetHsmInitializedAction {
   return {
     type: SET_HSM_INITIALIZED,
     payload: {
-      hsmId,
-      isInitialized,
+      id,
+      initialized,
     }
   };
 }
@@ -119,10 +114,11 @@ const hsmById = (
       return newState;
     }
     case SET_HSM_INITIALIZED: {
-      const { hsmId, isInitialized } = action.payload as SetHsmIsInitializedActionParams;
+      const id: string = (action as SetHsmInitializedAction).payload.id as string;
+      const initialized: boolean  = !(action as SetHsmInitializedAction).payload.initialized;
       const newState = cloneDeep(state) as BspHsmMap;
-      const hsm: BspHsm = newState[hsmId];
-      hsm.initialized = isInitialized;
+      const hsm: BspHsm = newState[id];
+      hsm.initialized = initialized;
       return newState;
     }
     case SET_ACTIVE_HSTATE: {

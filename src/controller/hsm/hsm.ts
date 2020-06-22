@@ -1,4 +1,4 @@
-import { HSMStateData, BspHState } from '../../type/hsm';
+import { HSMStateData, BspHState, BspHsm } from '../../type/hsm';
 import { isNil } from 'lodash';
 import {
   ArEventType,
@@ -8,7 +8,7 @@ import {
   setActiveHState,
   setHsmInitialized
 } from '../../model';
-import { getHsmById, getHStateById } from '../../selector/hsm';
+import { getHsmById, getHStateById, getHsmInitialized } from '../../selector/hsm';
 import {
   bspInitialPseudoStateHandler,
   HStateEventHandler
@@ -35,8 +35,6 @@ export function bspInitializeHsm(
   initialPseudoStateHandler: () => void,
 ): any {
 
-  let activeState: BspHState | null = null;
-
   return ((dispatch: any, getState: any) => {
 
     console.log('***** HSM.ts#bspInitializeHsm');
@@ -48,16 +46,10 @@ export function bspInitializeHsm(
       const action = bspInitialPseudoStateHandler(hsmId);
 
       return dispatch(action).
-        then((aState: any) => {
-          activeState = aState; // TEDTODO - set it on redux here? or is it set in the action??
+        then((activeState: any) => {
           dispatch(setActiveHState(hsmId, activeState));
-          const hsm = getHsmById(getState(), hsmId);
-          dispatch(completeHsmInitialization(
-            hsmId,
-            getHStateById(getState(), hsm.activeStateId),
-            getHStateById(getState(), hsm.topStateId),
-          ));
-          const hsmInitializationComplete = hsmInitialized();
+          dispatch(completeHsmInitialization(hsmId));
+          const hsmInitializationComplete = getHsmInitialized(getState(), hsmId);
           console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
           return Promise.resolve();
         });
@@ -68,14 +60,18 @@ export function bspInitializeHsm(
 }
 
 function completeHsmInitialization(
-  reduxHsmId: string,
-  reduxActiveState: BspHState | null,
-  reduxTopState: BspHState | null,
+  hsmId: string,
 ): any { // returns dispatch -> promise
 
   let action: any;
 
   return ((dispatch: any, getState: any) => {
+
+    // TEDTODO - necessary to have separate variables activeState and reduxActiveState?
+
+    const hsm: BspHsm = getHsmById(getState(), hsmId);
+    let reduxActiveState: BspHState | null = getHStateById(getState(), hsm.activeStateId);
+    const reduxTopState: BspHState | null = getHStateById(getState(), hsm.topStateId);
 
     const stateData: HSMStateData = { nextStateId: null };
 
@@ -90,9 +86,9 @@ function completeHsmInitialization(
 
     // if there is no activeState, the playlist is empty
     if (isNil(reduxActiveState)) {
-      dispatch(setActiveHState(reduxHsmId, null));
+      dispatch(setActiveHState(hsmId, null));
       console.log('***** return from HSM.ts#completeHsmInitialization');
-      dispatch(setHsmInitialized(reduxHsmId, true));
+      dispatch(setHsmInitialized(hsmId, true));
       return;
     }
 
@@ -145,9 +141,9 @@ function completeHsmInitialization(
         status = dispatch(action);
         if (status !== 'TRANSITION') {
           reduxActiveState = sourceState;
-          dispatch(setActiveHState(reduxHsmId, reduxActiveState));
+          dispatch(setActiveHState(hsmId, reduxActiveState));
           console.log('***** return from HSM.ts#completeHsmInitialization');
-          dispatch(setHsmInitialized(reduxHsmId, true));
+          dispatch(setHsmInitialized(hsmId, true));
           return;
         }
 
@@ -382,9 +378,4 @@ export function hsmDispatch(
 
     dispatch(setActiveHState(reduxHsmId, reduxActiveState));
   });
-}
-
-// TEDTODO
-function hsmInitialized(): boolean {
-  return false;
 }

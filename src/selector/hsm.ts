@@ -19,3 +19,7 @@ export function getHStateById(state: BsBspState, hStateId: string | null): BspHS
   }
   return state.bsPlayer.hsmState.hStateById[hStateId];
 }
+
+export function getHsmInitialized(state: BsBspState, hsmId: string): boolean {
+  return state.bsPlayer.hsmState.hsmById[hsmId].initialized;
+}
