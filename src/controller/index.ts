@@ -1,3 +1,3 @@
 /** @module Controller:index */
 
-export * from './player';
+export * from './playbackEngine';

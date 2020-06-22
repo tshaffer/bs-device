@@ -1,7 +1,7 @@
 
 import { bspCreateHsm, bspInitializeHsm } from './hsm';
 import { bspCreateHState } from './hState';
-import { restartPlayback } from '../player';
+import { restartPlayback } from '../playbackEngine';
 import {
   // getHsmById,
   getHStateById

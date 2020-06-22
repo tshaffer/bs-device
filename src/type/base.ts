@@ -23,9 +23,3 @@ export interface BspBaseObject {
 export interface BspMap<T extends BspBaseObject> {
   [id: string]: T;    // really '[id:BsDmId]: T;' -- but Typescript doesn't like that, even though BsDmId = string
 }
-
-export interface ArEventType {
-  EventType: string;
-  data?: any;
-  EventData?: any;
-}
