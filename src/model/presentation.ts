@@ -6,6 +6,7 @@ import { isObject } from 'lodash';
 
 export const UPDATE_PRESENTATION_DATA: string = 'UPDATE_PRESENTATION_DATA';
 export const UPDATE_PRESENTATION_PLATFORM: string = 'UPDATE_PRESENTATION_PLATFORM';
+export const UPDATE_PRESENTATION_SRC_DIRECTORY: string = 'UPDATE_PRESENTATION_SRC_DIRECTORY';
 
 export type UpdatePresentationDataAction = BsBspModelAction<Partial<PresentationDataState>>;
 
@@ -34,6 +35,17 @@ export const updatePresentationPlatform = (
   };
 };
 
+export const updatePresentationSrcDirectory = (
+  srcDirectory: string,
+): UpdatePresentationDataAction => {
+  return {
+    type: UPDATE_PRESENTATION_SRC_DIRECTORY,
+    payload: {
+      srcDirectory,
+    }
+  };
+};
+
 export const presentationDataDefaults: PresentationDataState = {
   platform: '',
   srcDirectory: '',
@@ -54,6 +66,11 @@ export const presentationDataReducer = (
       return {
         ...state,
         platform: payload.platform as string,
+      };
+    case UPDATE_PRESENTATION_SRC_DIRECTORY:
+      return {
+        ...state,
+        srcDirectory: payload.srcDirectory as string,
       };
     default:
       return state;

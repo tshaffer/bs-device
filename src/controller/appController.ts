@@ -7,11 +7,19 @@ import {
 } from '../type';
 
 // import { ArSyncSpec, ArFileLUT, ArSyncSpecDownload } from '../type';
-import { updatePresentationPlatform } from '../model/presentation';
+import { updatePresentationPlatform, updatePresentationSrcDirectory } from '../model/presentation';
+import { getPresentationPlatform } from '../selector';
+import { isNil } from 'lodash';
 
 export const loadPresentationData = (): any => {
   return ((dispatch: any, getState: () => BsBspState) => {
     dispatch(setPlatform());
+    const platform = getPresentationPlatform(getState());
+    if (!isNil(platform)) {
+      dispatch(setSrcDirectory(platform));
+    } else {
+      debugger;
+    }
   });
 };
 
@@ -27,11 +35,22 @@ const setPlatform = () => {
       platform = 'Desktop';
       console.log('failed to create controlPort: ');
     }
-    platform = dispatch(updatePresentationPlatform(platform));
-    return platform;
+    dispatch(updatePresentationPlatform(platform));
   });
 };
 
+export const setSrcDirectory = (platform: string) => {
+  return ((dispatch: any, getState: () => BsBspState) => {
+    let srcDirectory = '';
+    if (platform === 'Desktop') {
+      srcDirectory = '/Users/tedshaffer/Desktop/autotron';
+    } else {
+      const process = require('process');
+      process.chdir('/storage/sd');
+    }
+    platform = dispatch(updatePresentationSrcDirectory(srcDirectory));
+  });
+};
 // export function getRootDirectory(): string {
 //   // TEDTODO - build selector to do this.
 //   return srcDirectory;

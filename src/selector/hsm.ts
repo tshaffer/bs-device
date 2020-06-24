@@ -1,6 +1,3 @@
-// ------------------------------------
-// Selectors
-
 import {
   BsBspState,
   BspHsm,
@@ -8,6 +5,8 @@ import {
 } from '../type';
 import { isNil } from 'lodash';
 
+// ------------------------------------
+// Selectors
 // ------------------------------------
 export function getHsmById(state: BsBspState, hsmId: string): BspHsm {
   return state.bsPlayer.hsmState.hsmById[hsmId];
