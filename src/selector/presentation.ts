@@ -15,3 +15,13 @@ export function getPresentationPlatform(state: BsBspState): string {
   }
   return '';
 }
+
+export function getSrcDirectory(state: BsBspState): string {
+  if (
+    !isNil(state.bsPlayer)
+    && !isNil(state.bsPlayer.presentationData)
+    && !isNil(state.bsPlayer.presentationData.srcDirectory)) {
+    return state.bsPlayer.presentationData.srcDirectory;
+  }
+  return '';
+}

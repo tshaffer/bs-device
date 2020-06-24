@@ -1,15 +1,15 @@
-// import { isNil } from 'lodash';
-// import isomorphicPath from 'isomorphic-path';
-// import * as fs from 'fs-extra';
+import { isNil } from 'lodash';
+import isomorphicPath from 'isomorphic-path';
+import * as fs from 'fs-extra';
 
 import {
-  BsBspState
+  BsBspState,
+  ArSyncSpec,
+  // ArSyncSpecDownload
 } from '../type';
 
-// import { ArSyncSpec, ArFileLUT, ArSyncSpecDownload } from '../type';
 import { updatePresentationPlatform, updatePresentationSrcDirectory } from '../model/presentation';
-import { getPresentationPlatform } from '../selector';
-import { isNil } from 'lodash';
+import { getPresentationPlatform, getSrcDirectory } from '../selector';
 
 export const loadPresentationData = (): any => {
   return ((dispatch: any, getState: () => BsBspState) => {
@@ -17,6 +17,19 @@ export const loadPresentationData = (): any => {
     const platform = getPresentationPlatform(getState());
     if (!isNil(platform)) {
       dispatch(setSrcDirectory(platform));
+      const srcDirectory = getSrcDirectory(getState());
+      getSyncSpec(srcDirectory)
+        .then((syncSpec: ArSyncSpec) => {
+          console.log(syncSpec);
+          //   // TEDTODO - write to redux
+          //   _poolAssetFiles = getPoolAssetFiles(syncSpec, getRootDirectory());
+          //   return getAutoschedule(syncSpec, getRootDirectory());
+          // }).then((autoSchedule: any) => {
+          //   // TEDTODO - write to redux
+          //   _autoSchedule = autoSchedule;
+          //   // _hsmList = [];
+          return Promise.resolve();
+        });
     } else {
       debugger;
     }
@@ -51,10 +64,6 @@ export const setSrcDirectory = (platform: string) => {
     platform = dispatch(updatePresentationSrcDirectory(srcDirectory));
   });
 };
-// export function getRootDirectory(): string {
-//   // TEDTODO - build selector to do this.
-//   return srcDirectory;
-// }
 
 // export function getAppArtifacts(): Promise<void> {
 //   return getSyncSpec()
@@ -112,63 +121,62 @@ export const setSrcDirectory = (platform: string) => {
 //   return file;
 // }
 
-// function getSyncSpec(): Promise<any> {
-//   return getSyncSpecFilePath()
-//     .then((syncSpecFilePath: string | null) => {
-//       if (!syncSpecFilePath) {
-//         // TEDTODO - error object
-//         return Promise.reject('no sync spec found');
-//       } else {
-//         return Promise.resolve(readSyncSpec(syncSpecFilePath));
-//       }
-//     });
-// }
+function getSyncSpec(rootDirectory: string): Promise<any> {
+  return getSyncSpecFilePath(rootDirectory)
+    .then((syncSpecFilePath: string | null) => {
+      if (!syncSpecFilePath) {
+        // TEDTODO - error object
+        return Promise.reject('no sync spec found');
+      } else {
+        return Promise.resolve(readSyncSpec(syncSpecFilePath));
+      }
+    });
+}
 
-// function getSyncSpecFilePath(): Promise<string | null> {
-//   return getLocalSyncSpec()
-//     .then((localSyncSpecFilePath) => {
-//       if (isNil(localSyncSpecFilePath)) {
-//         return getNetworkedSyncSpec();
-//       } else {
-//         return Promise.resolve(localSyncSpecFilePath);
-//       }
-//     });
-// }
+function getSyncSpecFilePath(rootDirectory: string): Promise<string | null> {
+  return getLocalSyncSpec(rootDirectory)
+    .then((localSyncSpecFilePath) => {
+      if (isNil(localSyncSpecFilePath)) {
+        return getNetworkedSyncSpec(rootDirectory);
+      } else {
+        return Promise.resolve(localSyncSpecFilePath);
+      }
+    });
+}
 
-// function getNetworkedSyncSpec(): Promise<string | null> {
-//   const filePath: string = getNetworkedSyncSpecFilePath();
-//   return fs.pathExists(filePath)
-//     .then((exists: boolean) => {
-//       if (exists) {
-//         return Promise.resolve(filePath);
-//       } else {
-//         return Promise.resolve(null);
-//       }
-//     });
-// }
+function getNetworkedSyncSpec(rootDirectory: string): Promise<string | null> {
+  const filePath: string = getNetworkedSyncSpecFilePath(rootDirectory);
+  return fs.pathExists(filePath)
+    .then((exists: boolean) => {
+      if (exists) {
+        return Promise.resolve(filePath);
+      } else {
+        return Promise.resolve(null);
+      }
+    });
+}
 
-// function getLocalSyncSpec(): Promise<string | null> {
-//   const filePath: string = getLocalSyncSpecFilePath();
-//   return fs.pathExists(filePath)
-//     .then((exists: boolean) => {
-//       if (exists) {
-//         return Promise.resolve(filePath);
-//       } else {
-//         return Promise.resolve(null);
-//       }
-//     });
-// }
+function getLocalSyncSpec(rootDirectory: string): Promise<string | null> {
+  const filePath: string = getLocalSyncSpecFilePath(rootDirectory);
+  return fs.pathExists(filePath)
+    .then((exists: boolean) => {
+      if (exists) {
+        return Promise.resolve(filePath);
+      } else {
+        return Promise.resolve(null);
+      }
+    });
+}
 
-// function getLocalSyncSpecFilePath(): string {
-//   const rootDirectory: string = getRootDirectory();
-//   const syncSpecFilePath = isomorphicPath.join(rootDirectory, 'local-sync.json');
-//   return syncSpecFilePath;
-// }
+function getLocalSyncSpecFilePath(rootDirectory: string): string {
+  const syncSpecFilePath = isomorphicPath.join(rootDirectory, 'local-sync.json');
+  return syncSpecFilePath;
+}
 
-// function getNetworkedSyncSpecFilePath(): string {
-//   // return isomorphicPath.join(PlatformService.default.getRootDirectory(), 'current-sync.json');
-//   return isomorphicPath.join(getRootDirectory(), 'current-sync.json');
-// }
+function getNetworkedSyncSpecFilePath(rootDirectory: string): string {
+  // return isomorphicPath.join(PlatformService.default.getRootDirectory(), 'current-sync.json');
+  return isomorphicPath.join(rootDirectory, 'current-sync.json');
+}
 
 // export function getPoolFilePath(fileName: string): string {
 //   // TEDTODO - put this function in selector
@@ -180,14 +188,14 @@ export const setSrcDirectory = (platform: string) => {
 //   return isomorphicPath.join(getRootDirectory(), 'pool');
 // }
 
-// function readSyncSpec(syncSpecFilePath: string): Promise<ArSyncSpec> {
+function readSyncSpec(syncSpecFilePath: string): Promise<ArSyncSpec> {
 
-//   return fs.readFile(syncSpecFilePath, 'utf8')
-//     .then((syncSpecStr: string) => {
-//       const syncSpec: ArSyncSpec = JSON.parse(syncSpecStr);
-//       return Promise.resolve(syncSpec);
-//     });
-// }
+  return fs.readFile(syncSpecFilePath, 'utf8')
+    .then((syncSpecStr: string) => {
+      const syncSpec: ArSyncSpec = JSON.parse(syncSpecStr);
+      return Promise.resolve(syncSpec);
+    });
+}
 
 // function getPoolAssetFiles(syncSpec: ArSyncSpec, pathToRoot: string): ArFileLUT {
 
