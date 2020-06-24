@@ -3,10 +3,10 @@ import { Store } from 'redux';
 import isomorphicPath from 'isomorphic-path';
 import * as fs from 'fs-extra';
 
-import {
-  DmSignState,
-  dmOpenSign,
-} from '@brightsign/bsdatamodel';
+// import {
+//   DmSignState,
+//   dmOpenSign,
+// } from '@brightsign/bsdatamodel';
 
 import { BsBspState } from '../type';
 import { bspCreatePlayerHsm, bspInitializePlayerHsm } from './hsm';
@@ -42,20 +42,22 @@ if (platform === 'Desktop') {
 export function initPlayer(store: Store<BsBspState>) {
   return ((dispatch: any, getState: () => BsBspState) => {
     _autotronStore = store;
+    console.log(_autotronStore);
     dispatch(launchHSM());
   });
 }
 
-export function getRuntimeFiles(): Promise<void> {
+export function getRuntimeArtifacts(): Promise<void> {
   return getSyncSpec()
     .then((syncSpec: ArSyncSpec) => {
       _syncSpec = syncSpec;
+      console.log(_syncSpec);
       _poolAssetFiles = getPoolAssetFiles(syncSpec, getRootDirectory());
       return getAutoschedule(syncSpec, getRootDirectory());
     }).then((autoSchedule: any) => {
       _autoSchedule = autoSchedule;
+      console.log(_autoSchedule);
       // _hsmList = [];
-      // launchHSM();
       return Promise.resolve();
     });
 }
@@ -207,23 +209,24 @@ export function getRootDirectory(): string {
 export const restartPlayback = (presentationName: string): Promise<void> => {
   console.log('invoke restartPlayback');
 
-  const rootPath = getRootDirectory();
+  // const rootPath = getRootDirectory();
 
-  // TEDTODO - only a single scheduled item is currently supported
-  const scheduledPresentation = _autoSchedule.scheduledPresentations[0];
-  const presentationToSchedule = scheduledPresentation.presentationToSchedule;
+  // // TEDTODO - only a single scheduled item is currently supported
+  // const scheduledPresentation = _autoSchedule.scheduledPresentations[0];
+  // const presentationToSchedule = scheduledPresentation.presentationToSchedule;
 
-  presentationName = presentationToSchedule.name;
+  // presentationName = presentationToSchedule.name;
 
-  const autoplayFileName = presentationName + '.bml';
+  // const autoplayFileName = presentationName + '.bml';
 
-  return getSyncSpecReferencedFile(autoplayFileName, _syncSpec, rootPath)
-    .then((bpfxState: any) => {
-      const autoPlay: any = bpfxState.bsdm;
-      const signState = autoPlay as DmSignState;
-      _autotronStore.dispatch(dmOpenSign(signState));
-      return Promise.resolve();
-    });
+  // return getSyncSpecReferencedFile(autoplayFileName, _syncSpec, rootPath)
+  //   .then((bpfxState: any) => {
+  //     const autoPlay: any = bpfxState.bsdm;
+  //     const signState = autoPlay as DmSignState;
+  //     _autotronStore.dispatch(dmOpenSign(signState));
+  //     return Promise.resolve();
+  //   });
+  return Promise.resolve();
 };
 
 // function startPlayback() {
@@ -231,10 +234,6 @@ export const restartPlayback = (presentationName: string): Promise<void> => {
 //   return (dispatch: any, getState: any) => {
 //     console.log('startPlayback');
 //   };
-// }
-
-// function restartPlayback(presentationName: string): Promise<void> {
-//   return Promise.resolve();
 // }
 
 export function postMessage(event: ArEventType) {

@@ -15,6 +15,7 @@ import {
   hsmReducer,
   isValidHsmState
 } from './hsm';
+import { presentationDataReducer } from './presentation';
 
 // -----------------------------------------------------------------------
 // Defaults
@@ -51,6 +52,7 @@ export const enableBatching = (
 
 export const bsBspReducer = enableBatching(combineReducers<BsBspModelState>({
   hsmState: hsmReducer,
+  presentationData: presentationDataReducer,
 }));
 
 // -----------------------------------------------------------------------

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Dispatch } from 'redux';
 import { DmState } from '@brightsign/bsdatamodel';
+import { loadPresentationData } from '../controller/appController';
 
 // -----------------------------------------------------------------------
 // Types
@@ -11,6 +12,7 @@ import { DmState } from '@brightsign/bsdatamodel';
 
 export interface BrightSignPlayerProps {
   bsdm: DmState;
+  onLoadPresentationData: () => void;
 }
 
 // -----------------------------------------------------------------------
@@ -25,8 +27,11 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
     super(props);
   }
 
-  render() {
+  componentDidMount() {
+    this.props.onLoadPresentationData();
+  }
 
+  render() {
     // postMessage={this.props.postMessage}
     return (
       <div>Pizza</div>
@@ -40,6 +45,7 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return bindActionCreators({
+    onLoadPresentationData: loadPresentationData,
   }, dispatch);
 };
 
