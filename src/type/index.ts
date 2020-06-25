@@ -5,3 +5,4 @@ export * from './hsm';
 export * from './hsmTypes';
 export * from './playbackEngine';
 export * from './presentation';
+export * from './schedule';

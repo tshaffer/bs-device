@@ -1,7 +1,7 @@
 import {
   BsBspModelAction,
 } from './baseAction';
-import { PresentationDataState } from '../type';
+import { PresentationDataState, ScheduledPresentation } from '../type';
 import { isObject } from 'lodash';
 import { ArSyncSpec } from '../..';
 
@@ -61,7 +61,7 @@ export const updatePresentationSyncSpec = (
 };
 
 export const updatePresentationAutoschedule = (
-  autoSchedule: any,
+  autoSchedule: ScheduledPresentation[],
 ): UpdatePresentationDataAction => {
   return {
     type: UPDATE_AUTOSCHEDULE,

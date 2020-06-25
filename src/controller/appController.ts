@@ -5,6 +5,7 @@ import * as fs from 'fs-extra';
 import {
   BsBspState,
   ArSyncSpec,
+  ScheduledPresentation,
 } from '../type';
 
 import {
@@ -79,7 +80,7 @@ const setAutoschedule = (): any => {
   return ((dispatch: any, getState: () => BsBspState) => {
     return new Promise((resolve, reject) => {
       getSyncSpecFile(getState(), 'autoschedule.json')
-        .then((autoSchedule: any) => {
+        .then((autoSchedule: ScheduledPresentation[]) => {
           dispatch(updatePresentationAutoschedule(autoSchedule));
           return resolve();
         });
