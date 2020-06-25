@@ -3,10 +3,13 @@ import {
 } from './baseAction';
 import { PresentationDataState } from '../type';
 import { isObject } from 'lodash';
+import { ArSyncSpec } from '../..';
 
-export const UPDATE_PRESENTATION_DATA: string = 'UPDATE_PRESENTATION_DATA';
-export const UPDATE_PRESENTATION_PLATFORM: string = 'UPDATE_PRESENTATION_PLATFORM';
-export const UPDATE_PRESENTATION_SRC_DIRECTORY: string = 'UPDATE_PRESENTATION_SRC_DIRECTORY';
+export const UPDATE_PRESENTATION_DATA = 'UPDATE_PRESENTATION_DATA';
+export const UPDATE_PRESENTATION_PLATFORM = 'UPDATE_PRESENTATION_PLATFORM';
+export const UPDATE_PRESENTATION_SRC_DIRECTORY = 'UPDATE_PRESENTATION_SRC_DIRECTORY';
+export const UPDATE_SYNC_SPEC = 'UPDATE_SYNC_SPEC';
+export const UPDATE_AUTOSCHEDULE = 'UPDATE_AUTOSCHEDULE';
 
 export type UpdatePresentationDataAction = BsBspModelAction<Partial<PresentationDataState>>;
 
@@ -46,10 +49,33 @@ export const updatePresentationSrcDirectory = (
   };
 };
 
+export const updatePresentationSyncSpec = (
+  syncSpec: any,
+): UpdatePresentationDataAction => {
+  return {
+    type: UPDATE_SYNC_SPEC,
+    payload: {
+      syncSpec,
+    }
+  };
+};
+
+export const updatePresentationAutoschedule = (
+  autoSchedule: any,
+): UpdatePresentationDataAction => {
+  return {
+    type: UPDATE_AUTOSCHEDULE,
+    payload: {
+      autoSchedule,
+    }
+  };
+};
+
 export const presentationDataDefaults: PresentationDataState = {
   platform: '',
   srcDirectory: '',
   syncSpec: null,
+  autoSchedule: null,
 };
 Object.freeze(presentationDataDefaults);
 
@@ -71,6 +97,16 @@ export const presentationDataReducer = (
       return {
         ...state,
         srcDirectory: payload.srcDirectory as string,
+      };
+    case UPDATE_SYNC_SPEC:
+      return {
+        ...state,
+        syncSpec: payload.syncSpec as ArSyncSpec,
+      };
+    case UPDATE_AUTOSCHEDULE:
+      return {
+        ...state,
+        autoSchedule: payload.autoSchedule as any,
       };
     default:
       return state;

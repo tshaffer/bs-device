@@ -5,34 +5,32 @@ import * as fs from 'fs-extra';
 import {
   BsBspState,
   ArSyncSpec,
-  // ArSyncSpecDownload
 } from '../type';
 
-import { updatePresentationPlatform, updatePresentationSrcDirectory } from '../model/presentation';
-import { getPresentationPlatform, getSrcDirectory } from '../selector';
+import {
+  updatePresentationPlatform,
+  updatePresentationSrcDirectory,
+  updatePresentationSyncSpec,
+  updatePresentationAutoschedule
+} from '../model/presentation';
+import {
+  getPresentationPlatform,
+  getSrcDirectory,
+  getSyncSpecFile
+} from '../selector';
 
 export const loadPresentationData = (): any => {
   return ((dispatch: any, getState: () => BsBspState) => {
     dispatch(setPlatform());
-    const platform = getPresentationPlatform(getState());
-    if (!isNil(platform)) {
-      dispatch(setSrcDirectory(platform));
-      const srcDirectory = getSrcDirectory(getState());
-      getSyncSpec(srcDirectory)
-        .then((syncSpec: ArSyncSpec) => {
-          console.log(syncSpec);
-          //   // TEDTODO - write to redux
-          //   _poolAssetFiles = getPoolAssetFiles(syncSpec, getRootDirectory());
-          //   return getAutoschedule(syncSpec, getRootDirectory());
-          // }).then((autoSchedule: any) => {
-          //   // TEDTODO - write to redux
-          //   _autoSchedule = autoSchedule;
-          //   // _hsmList = [];
-          return Promise.resolve();
+    dispatch(setSrcDirectory());
+    dispatch(setSyncSpec())
+      .then(() => {
+        const promise = dispatch(setAutoschedule());
+        promise.then(() => {
+          console.log('loadPresentationData complete');
+          console.log(getState());
         });
-    } else {
-      debugger;
-    }
+      });
   });
 };
 
@@ -52,8 +50,9 @@ const setPlatform = () => {
   });
 };
 
-export const setSrcDirectory = (platform: string) => {
+const setSrcDirectory = () => {
   return ((dispatch: any, getState: () => BsBspState) => {
+    const platform = getPresentationPlatform(getState());
     let srcDirectory = '';
     if (platform === 'Desktop') {
       srcDirectory = '/Users/tedshaffer/Desktop/autotron';
@@ -61,65 +60,32 @@ export const setSrcDirectory = (platform: string) => {
       const process = require('process');
       process.chdir('/storage/sd');
     }
-    platform = dispatch(updatePresentationSrcDirectory(srcDirectory));
+    dispatch(updatePresentationSrcDirectory(srcDirectory));
   });
 };
 
-// export function getAppArtifacts(): Promise<void> {
-//   return getSyncSpec()
-//     .then((syncSpec: ArSyncSpec) => {
-//       // TEDTODO - write to redux
-//       _poolAssetFiles = getPoolAssetFiles(syncSpec, getRootDirectory());
-//       return getAutoschedule(syncSpec, getRootDirectory());
-//     }).then((autoSchedule: any) => {
-//       // TEDTODO - write to redux
-//       _autoSchedule = autoSchedule;
-//       // _hsmList = [];
-//       return Promise.resolve();
-//     });
-// }
+const setSyncSpec = () => {
+  return ((dispatch: any, getState: () => BsBspState) => {
+    const srcDirectory = getSrcDirectory(getState());
+    return getSyncSpec(srcDirectory)
+      .then((syncSpec) => {
+        dispatch(updatePresentationSyncSpec(syncSpec));
+        return Promise.resolve();
+      });
+  });
+};
 
-// function getAutoschedule(syncSpec: ArSyncSpec, rootPath: string) {
-//   return getSyncSpecReferencedFile('autoschedule.json', syncSpec, rootPath);
-// }
-
-// function getSyncSpecReferencedFile(fileName: string, syncSpec: ArSyncSpec, rootPath: string): Promise<object> {
-
-//   const syncSpecFile: ArSyncSpecDownload | null = getFile(syncSpec, fileName);
-//   if (syncSpecFile == null) {
-//     return Promise.reject('file not found');
-//   }
-
-//   // const fileSize = syncSpecFile.size;
-//   const filePath: string = isomorphicPath.join(rootPath, syncSpecFile.link);
-
-//   return fs.readFile(filePath, 'utf8')
-//     .then((fileStr: string) => {
-
-//       const file: object = JSON.parse(fileStr);
-
-//       // I have commented out the following code to allow hacking of files -
-//       // that is, overwriting files in the pool without updating the sync spec with updated sha1
-//       // if (fileSize !== fileStr.length) {
-//       //   debugger;
-//       // }
-//       return Promise.resolve(file);
-//     });
-// }
-
-// function getFile(syncSpec: ArSyncSpec, fileName: string): ArSyncSpecDownload | null {
-
-//   let file: ArSyncSpecDownload | null = null;
-
-//   syncSpec.files.download.forEach((syncSpecFile: ArSyncSpecDownload) => {
-//     if (syncSpecFile.name === fileName) {
-//       file = syncSpecFile;
-//       return;
-//     }
-//   });
-
-//   return file;
-// }
+const setAutoschedule = (): any => {
+  return ((dispatch: any, getState: () => BsBspState) => {
+    return new Promise((resolve, reject) => {
+      getSyncSpecFile(getState(), 'autoschedule.json')
+        .then((autoSchedule: any) => {
+          dispatch(updatePresentationAutoschedule(autoSchedule));
+          return resolve();
+        });
+    });
+  });
+};
 
 function getSyncSpec(rootDirectory: string): Promise<any> {
   return getSyncSpecFilePath(rootDirectory)
@@ -169,41 +135,17 @@ function getLocalSyncSpec(rootDirectory: string): Promise<string | null> {
 }
 
 function getLocalSyncSpecFilePath(rootDirectory: string): string {
-  const syncSpecFilePath = isomorphicPath.join(rootDirectory, 'local-sync.json');
-  return syncSpecFilePath;
+  return isomorphicPath.join(rootDirectory, 'local-sync.json');
 }
 
 function getNetworkedSyncSpecFilePath(rootDirectory: string): string {
-  // return isomorphicPath.join(PlatformService.default.getRootDirectory(), 'current-sync.json');
   return isomorphicPath.join(rootDirectory, 'current-sync.json');
 }
 
-// export function getPoolFilePath(fileName: string): string {
-//   // TEDTODO - put this function in selector
-//   const filePath: string = _poolAssetFiles[fileName];
-//   return filePath;
-// }
-
-// export function getPoolDirectory(): string {
-//   return isomorphicPath.join(getRootDirectory(), 'pool');
-// }
-
 function readSyncSpec(syncSpecFilePath: string): Promise<ArSyncSpec> {
-
   return fs.readFile(syncSpecFilePath, 'utf8')
     .then((syncSpecStr: string) => {
       const syncSpec: ArSyncSpec = JSON.parse(syncSpecStr);
       return Promise.resolve(syncSpec);
     });
 }
-
-// function getPoolAssetFiles(syncSpec: ArSyncSpec, pathToRoot: string): ArFileLUT {
-
-//   const poolAssetFiles: ArFileLUT = {};
-
-//   syncSpec.files.download.forEach((syncSpecFile: ArSyncSpecDownload) => {
-//     poolAssetFiles[syncSpecFile.name] = isomorphicPath.join(pathToRoot, syncSpecFile.link);
-//   });
-
-//   return poolAssetFiles;
-// }
