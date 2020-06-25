@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import isomorphicPath from 'isomorphic-path';
 
 import {
-  BsBspState, ArSyncSpec, ArFileLUT, ArSyncSpecDownload,
+  BsBspState, ArSyncSpec, ArFileLUT, ArSyncSpecDownload, BspSchedule,
 } from '../type';
 
 // ------------------------------------
@@ -33,6 +33,14 @@ export const getSyncSpec = (state: BsBspState): ArSyncSpec | null => {
   if (!isNil(state.bsPlayer)
     && !isNil(state.bsPlayer.presentationData)) {
     return state.bsPlayer.presentationData.syncSpec;
+  }
+  return null;
+};
+
+export const getAutoschedule = (state: BsBspState): BspSchedule | null => {
+  if (!isNil(state.bsPlayer)
+    && !isNil(state.bsPlayer.presentationData)) {
+    return state.bsPlayer.presentationData.autoSchedule;
   }
   return null;
 };

@@ -5,13 +5,16 @@ import { bindActionCreators } from 'redux';
 import { Dispatch } from 'redux';
 import { DmState } from '@brightsign/bsdatamodel';
 import { loadPresentationData } from '../controller/appController';
-import { BsBspNonThunkAction } from '../type';
+import { BsBspNonThunkAction, BspSchedule } from '../type';
+import { getAutoschedule } from '../selector';
+import { isNil } from 'lodash';
 
 // -----------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------
 
 export interface BrightSignPlayerProps {
+  autoschedule: BspSchedule;
   bsdm: DmState;
   onLoadPresentationData: () => BsBspNonThunkAction;
 }
@@ -34,9 +37,15 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 
   render() {
     // postMessage={this.props.postMessage}
-    return (
-      <div>Pizza</div>
-    );
+    if (isNil(this.props.autoschedule)) {
+      return (
+        <div>Pizza cooking</div>
+      );
+    } else {
+      return (
+        <div>Pizza served</div>
+      );
+    }
   }
 }
 
@@ -53,6 +62,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 function mapStateToProps(state: any) {
   return {
     bsdm: state.bsdm,
+    autoschedule: getAutoschedule(state),
   };
 }
 

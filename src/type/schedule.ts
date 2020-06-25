@@ -1,5 +1,7 @@
 import { BsAssetLocator } from '@brightsign/bscore';
 
+export type BspSchedule = ScheduledPresentation[];
+
 export interface ScheduledPresentation {
   presentationToSchedule: ScheduledPresentationFileData;
   presentationLocator: BsAssetLocator;    // BsAssetLocator for presentation
