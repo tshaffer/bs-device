@@ -6,6 +6,9 @@ import {
   BsBspState,
   ArSyncSpec,
   ScheduledPresentation,
+  BsBspDispatch,
+  BsBspVoidPromiseThunkAction,
+  BsBspNonThunkAction,
 } from '../type';
 
 import {
@@ -20,8 +23,8 @@ import {
   getSyncSpecFile
 } from '../selector';
 
-export const loadPresentationData = (): any => {
-  return ((dispatch: any, getState: () => BsBspState) => {
+export const loadPresentationData = (): BsBspNonThunkAction => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
     dispatch(setPlatform());
     dispatch(setSrcDirectory());
     dispatch(setSyncSpec())
@@ -35,8 +38,8 @@ export const loadPresentationData = (): any => {
   });
 };
 
-const setPlatform = () => {
-  return ((dispatch: any, getState: () => BsBspState) => {
+const setPlatform = (): BsBspNonThunkAction => {
+  return ((dispatch: BsBspDispatch) => {
     let platform = '';
     try {
       const gpio = new BSControlPort('BrightSign') as any;
@@ -51,8 +54,8 @@ const setPlatform = () => {
   });
 };
 
-const setSrcDirectory = () => {
-  return ((dispatch: any, getState: () => BsBspState) => {
+const setSrcDirectory = (): BsBspNonThunkAction => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
     const platform = getPresentationPlatform(getState());
     let srcDirectory = '';
     if (platform === 'Desktop') {
@@ -65,8 +68,8 @@ const setSrcDirectory = () => {
   });
 };
 
-const setSyncSpec = () => {
-  return ((dispatch: any, getState: () => BsBspState) => {
+const setSyncSpec = (): BsBspVoidPromiseThunkAction => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
     const srcDirectory = getSrcDirectory(getState());
     return getSyncSpec(srcDirectory)
       .then((syncSpec) => {
@@ -76,8 +79,8 @@ const setSyncSpec = () => {
   });
 };
 
-const setAutoschedule = (): any => {
-  return ((dispatch: any, getState: () => BsBspState) => {
+const setAutoschedule = (): BsBspVoidPromiseThunkAction => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
     return new Promise((resolve, reject) => {
       getSyncSpecFile(getState(), 'autoschedule.json')
         .then((autoSchedule: ScheduledPresentation[]) => {
@@ -88,7 +91,7 @@ const setAutoschedule = (): any => {
   });
 };
 
-function getSyncSpec(rootDirectory: string): Promise<any> {
+function getSyncSpec(rootDirectory: string): Promise<ArSyncSpec> {
   return getSyncSpecFilePath(rootDirectory)
     .then((syncSpecFilePath: string | null) => {
       if (!syncSpecFilePath) {

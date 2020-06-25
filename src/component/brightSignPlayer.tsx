@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import { Dispatch } from 'redux';
 import { DmState } from '@brightsign/bsdatamodel';
 import { loadPresentationData } from '../controller/appController';
+import { BsBspNonThunkAction } from '../type';
 
 // -----------------------------------------------------------------------
 // Types
@@ -12,7 +13,7 @@ import { loadPresentationData } from '../controller/appController';
 
 export interface BrightSignPlayerProps {
   bsdm: DmState;
-  onLoadPresentationData: () => void;
+  onLoadPresentationData: () => BsBspNonThunkAction;
 }
 
 // -----------------------------------------------------------------------
