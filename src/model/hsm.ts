@@ -115,7 +115,7 @@ const hsmById = (
     }
     case SET_HSM_INITIALIZED: {
       const id: string = (action as SetHsmInitializedAction).payload.id as string;
-      const initialized: boolean  = !(action as SetHsmInitializedAction).payload.initialized;
+      const initialized: boolean  = (action as SetHsmInitializedAction).payload.initialized!;
       const newState = cloneDeep(state) as BspHsmMap;
       const hsm: BspHsm = newState[id];
       hsm.initialized = initialized;
