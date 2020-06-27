@@ -5,10 +5,11 @@ import * as fs from 'fs-extra';
 import {
   BsBspState,
   ArSyncSpec,
-  ScheduledPresentation,
+  // ScheduledPresentation,
   BsBspDispatch,
   BsBspVoidPromiseThunkAction,
   BsBspNonThunkAction,
+  BspSchedule,
 } from '../type';
 
 import {
@@ -70,7 +71,7 @@ const setSrcDirectory = (): BsBspNonThunkAction => {
       const platform = getPresentationPlatform(getState());
       let srcDirectory = '';
       if (platform === 'Desktop') {
-        srcDirectory = '/Users/tedshaffer/Desktop/autotron';
+        srcDirectory = '/Users/tedshaffer/Desktop/autotron-2020';
       } else {
         const process = require('process');
         process.chdir('/storage/sd');
@@ -94,7 +95,7 @@ const setAutoschedule = (): BsBspVoidPromiseThunkAction => {
     return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
       return new Promise((resolve, reject) => {
         getSyncSpecFile(getState(), 'autoschedule.json')
-          .then((autoSchedule: ScheduledPresentation[]) => {
+          .then((autoSchedule: BspSchedule) => {
             dispatch(updatePresentationAutoschedule(autoSchedule));
             return resolve();
           });

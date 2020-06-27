@@ -65,8 +65,7 @@ export const initializePlayerStateMachine = (): any => {
     // TEDTODO - BIG
     // HOW TO GET restartPlayback here?
     // it should be stored, though not as a function, in redux
-    return restartPlayback('')
-
+    return dispatch(restartPlayback(''))
       .then(() => {
         console.log('return from invoking playerStateMachine restartPlayback');
         return Promise.resolve(getHStateById(getState(), 'playing'));

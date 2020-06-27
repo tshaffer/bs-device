@@ -84,7 +84,7 @@ export const getSyncSpecFile = (state: BsBspState, fileName: string): Promise<ob
     });
 };
 
-function getFile(syncSpec: ArSyncSpec, fileName: string): ArSyncSpecDownload | null {
+export function getFile(syncSpec: ArSyncSpec, fileName: string): ArSyncSpecDownload | null {
 
   let file: ArSyncSpecDownload | null = null;
 
