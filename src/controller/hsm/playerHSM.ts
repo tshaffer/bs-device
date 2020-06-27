@@ -1,7 +1,10 @@
 
 import { bspCreateHsm, bspInitializeHsm } from './hsm';
 import { bspCreateHState } from './hState';
-import { restartPlayback } from '../playbackEngine';
+import {
+  restartPlayback,
+  startPlayback,
+} from '../playbackEngine';
 import {
   // getHsmById,
   getHStateById
@@ -13,7 +16,7 @@ import {
   ArEventType,
   HSMStateData,
   // BspHsm
- } from '../../type';
+} from '../../type';
 import { isNil } from 'lodash';
 import { setHsmTop } from '../../model';
 // import { DmState } from '@brightsign/bsdatamodel';
@@ -81,6 +84,9 @@ export const STPlayerEventHandler = (
 ): any => {
   return (dispatch: any, getState: any) => {
     stateData.nextStateId = hState.superStateId;
+
+    console.log('***** - STPlayerEventHandler, event type ' + event.EventType);
+
     return 'SUPER';
   };
 };
@@ -98,7 +104,10 @@ export const STPlayingEventHandler = (
 
     if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
       console.log(hState.id + ': entry signal');
-      // const bsdm: DmState = getState().bsdm;
+
+      const action: any = startPlayback();
+      dispatch(action);
+
       return 'HANDLED';
     }
 

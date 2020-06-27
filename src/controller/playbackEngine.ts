@@ -11,14 +11,26 @@ import {
   ArSyncSpec,
   // BsBspVoidThunkAction,
   BsBspVoidPromiseThunkAction,
+  BsBspNonThunkAction,
+  // ArEventType,
 } from '../type';
 import {
   bspCreatePlayerHsm,
   bspInitializePlayerHsm,
+  bspCreateMediaZoneHsm,
 } from './hsm';
 // import { ArEventType } from '../type';
 import { getAutoschedule, getFile, getSyncSpec, getSrcDirectory } from '../selector';
-import { DmSignState, dmOpenSign } from '@brightsign/bsdatamodel';
+import {
+  BsDmId,
+  DmSignState,
+  dmOpenSign,
+  DmState,
+  dmGetZoneById,
+  DmZone,
+  dmGetZonesForSign,
+} from '@brightsign/bsdatamodel';
+// import { ZoneType } from '@brightsign/bscore';
 
 export function initPlayer(store: Store<BsBspState>) {
   return ((dispatch: any, getState: () => BsBspState) => {
@@ -84,3 +96,34 @@ export const restartPlayback = (presentationName: string): BsBspVoidPromiseThunk
     }
   };
 };
+
+export const startPlayback = (): BsBspNonThunkAction => {
+  console.log('invoke startPlayback');
+
+  return (dispatch: any, getState: any) => {
+
+    const bsdm: DmState = getState().bsdm;
+    console.log('startPlayback');
+    console.log(bsdm);
+
+    const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
+    zoneIds.forEach((zoneId: BsDmId) => {
+      const bsdmZone: DmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
+      dispatch(bspCreateMediaZoneHsm(zoneId + '-' + bsdmZone.type, bsdmZone.type.toString()));
+    });
+  };
+};
+
+// export function queueHsmEvent(event: ArEventType) {
+//   return ((dispatch: any) => {
+//     if (event.EventType !== 'NOP') {
+//       _queuedEvents.push(event);
+//     }
+//     if (hsmInitialized()) {
+//       while (_queuedEvents.length > 0) {
+//         dispatch(dispatchHsmEvent(_queuedEvents[0]));
+//         _queuedEvents.shift();
+//       }
+//     }
+//   });
+// }
