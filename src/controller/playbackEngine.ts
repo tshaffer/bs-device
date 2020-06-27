@@ -109,7 +109,7 @@ export const startPlayback = (): BsBspNonThunkAction => {
     const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
     zoneIds.forEach((zoneId: BsDmId) => {
       const bsdmZone: DmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
-      dispatch(bspCreateMediaZoneHsm(zoneId + '-' + bsdmZone.type, bsdmZone.type.toString()));
+      dispatch(bspCreateMediaZoneHsm(zoneId + '-' + bsdmZone.type, bsdmZone.type.toString(), bsdmZone));
     });
   };
 };

@@ -13,7 +13,24 @@ export interface BspHsm {
   topStateId: string;
   activeStateId: string | null;
   initialized: boolean;
+  hsmData?: HsmData;
 }
+
+export type HsmData = ZoneHsmData;
+
+export interface ZoneHsmData {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+
+  initialMediaStateId: string;
+
+  // mediaStateIds
+}
+
+// export interface MediaZoneHsmData extends ZoneHsmData {
+// }
 
 export interface BspHState {
   id: string;

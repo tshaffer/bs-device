@@ -1,4 +1,4 @@
-import { HSMStateData, BspHState, BspHsm } from '../../type/hsm';
+import { HSMStateData, BspHState, BspHsm, HsmData } from '../../type/hsm';
 import { isNil } from 'lodash';
 import {
   ArEventType,
@@ -17,6 +17,7 @@ import {
 export const bspCreateHsm = (
   hsmId: string,
   hsmType: string,
+  hsmData?: HsmData,
 ) => {
   return ((dispatch: any) => {
     console.log('***** HSM.ts#bspCreateHsm');
@@ -26,6 +27,7 @@ export const bspCreateHsm = (
       initialized: false,
       topStateId: '',
       activeStateId: null,
+      hsmData,
     }));
   });
 };
