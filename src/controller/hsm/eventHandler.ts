@@ -13,7 +13,7 @@ import {
 // } from '../../selector/hsm';
 import { isNil } from 'lodash';
 import { STPlayerEventHandler, STPlayingEventHandler, STWaitingEventHandler, initializePlayerStateMachine } from './playerHSM';
-import { videoOrImagesZoneConstructor } from './mediaZoneHsm';
+import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from './mediaZoneHsm';
 
 export const hsmConstructorFunction = (hsmId: string): any => {
   return (dispatch: any, getState: any) => {
@@ -27,6 +27,8 @@ export const bspInitialPseudoStateHandler = (hsmId: string) => {
   return (dispatch: any, getState: any) => {
     if (hsmId === 'player') {
       return dispatch(initializePlayerStateMachine());
+    } else if (hsmId.indexOf('VideoOrImages') >= 0) {
+      return dispatch(videoOrImagesZoneGetInitialState(hsmId));
     } else {
       debugger;
     }

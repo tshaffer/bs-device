@@ -43,7 +43,8 @@ export interface BsBspAction<T> extends BsBspBaseAction {
 }
 
 export type BsBspDispatch = Dispatch<BsBspState>;
-export type BsBspNonThunkAction = (dispatch: BsBspDispatch, getState: () => BsBspState) => void;
+export type BsBspNonThunkAction =
+  (dispatch: BsBspDispatch, getState: () => BsBspState) => void;
 export type BsBspVoidThunkAction =
   (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => void;
 export type BsBspStringThunkAction =

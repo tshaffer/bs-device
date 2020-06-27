@@ -12,12 +12,15 @@ import {
   // BsBspVoidThunkAction,
   BsBspVoidPromiseThunkAction,
   BsBspNonThunkAction,
+  BsBspAnyPromiseThunkAction,
   // ArEventType,
 } from '../type';
 import {
   bspCreatePlayerHsm,
   bspInitializePlayerHsm,
   bspCreateMediaZoneHsm,
+  bspInitializeHsm,
+  videoOrImagesZoneGetInitialState,
 } from './hsm';
 // import { ArEventType } from '../type';
 import { getAutoschedule, getFile, getSyncSpec, getSrcDirectory, getZoneHsmList } from '../selector';
@@ -117,10 +120,27 @@ export const startPlayback = (): BsBspNonThunkAction => {
 
     const zoneHsmList = getZoneHsmList(getState());
     for (const zoneHsm of zoneHsmList) {
-      promises.push(dispatch(hsmConstructorFunction(zoneHsm.id)));
+      dispatch(hsmConstructorFunction(zoneHsm.id));
+      const action = bspInitializeHsm(
+        zoneHsm.id,
+        getVideoOrImagesInitialState
+      );
+      promises.push(dispatch(action));
     }
-  };
 
+    Promise.all(promises).then(() => {
+      console.log('startPlayback nearly complete');
+      console.log('wait for HSM initialization complete');
+    });
+
+  };
+};
+
+export const getVideoOrImagesInitialState = (): BsBspAnyPromiseThunkAction => {
+  return (dispatch: any, getState: any) => {
+    console.log('invoke getVideoOrImagesInitialState');
+    return Promise.resolve(videoOrImagesZoneGetInitialState);
+  };
 };
 
 // export function queueHsmEvent(event: ArEventType) {

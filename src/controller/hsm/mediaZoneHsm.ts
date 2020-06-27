@@ -11,7 +11,7 @@ import {
   // dmGetInitialMediaStateIdForZone
 } from '@brightsign/bsdatamodel';
 import {
-  HsmData, BsBspNonThunkAction, BspHState,
+  HsmData, BsBspNonThunkAction, BspHState, BsBspVoidThunkAction,
   // MediaHState
 } from '../../type';
 import { ContentItemType } from '@brightsign/bscore';
@@ -65,7 +65,7 @@ const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superSta
   });
 };
 
-export const videoOrImagesZoneConstructor = (hsmId: string) => {
+export const videoOrImagesZoneConstructor = (hsmId: string): BsBspVoidThunkAction => {
   return (dispatch: any, getState: any) => {
 
     // get the initial media state for the zone
@@ -80,7 +80,12 @@ export const videoOrImagesZoneConstructor = (hsmId: string) => {
     }
 
     dispatch(setActiveHState(hsmId, activeState));
+  };
+};
 
-    return Promise.resolve();
+export const videoOrImagesZoneGetInitialState = (hsmId: string): any => {
+  return (dispatch: any, getState: any) => {
+    const hsm: BspHsm = getHsmById(getState(), hsmId);
+    return Promise.resolve(getHStateById(getState(), hsm.activeStateId));
   };
 };

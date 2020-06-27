@@ -1,5 +1,8 @@
 
-import { bspCreateHsm, bspInitializeHsm } from './hsm';
+import {
+  bspCreateHsm,
+  bspInitializeHsm
+} from './hsm';
 import { bspCreateHState } from './hState';
 import {
   restartPlayback,
