@@ -14,7 +14,7 @@ export function initPlayer(store: Store<BsBspState>) {
   });
 }
 
-function launchHSM() {
+export function launchHSM() {
   return ((dispatch: any) => {
     dispatch(bspCreatePlayerHsm());
     dispatch(bspInitializePlayerHsm());

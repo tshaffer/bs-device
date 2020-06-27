@@ -4,8 +4,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Dispatch } from 'redux';
 import { DmState } from '@brightsign/bsdatamodel';
-import { loadPresentationData } from '../controller/appController';
-import { BsBspNonThunkAction, BspSchedule } from '../type';
+import {
+  initPresentation,
+} from '../controller/appController';
+import {
+  BspSchedule,
+} from '../type';
 import { getAutoschedule } from '../selector';
 import { isNil } from 'lodash';
 
@@ -16,7 +20,7 @@ import { isNil } from 'lodash';
 export interface BrightSignPlayerProps {
   autoschedule: BspSchedule;
   bsdm: DmState;
-  onLoadPresentationData: () => BsBspNonThunkAction;
+  onInitPresentation: () => any;
 }
 
 // -----------------------------------------------------------------------
@@ -32,7 +36,7 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
   }
 
   componentDidMount() {
-    this.props.onLoadPresentationData();
+    this.props.onInitPresentation();
   }
 
   render() {
@@ -55,7 +59,7 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return bindActionCreators({
-    onLoadPresentationData: loadPresentationData,
+    onInitPresentation: initPresentation,
   }, dispatch);
 };
 
