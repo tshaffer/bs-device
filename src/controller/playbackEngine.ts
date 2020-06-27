@@ -13,6 +13,10 @@ import {
   BsBspVoidPromiseThunkAction,
   BsBspNonThunkAction,
   BsBspAnyPromiseThunkAction,
+  ArEventType,
+  BspHsmMap,
+  BspHsm,
+  BspHState,
   // ArEventType,
 } from '../type';
 import {
@@ -21,9 +25,20 @@ import {
   bspCreateMediaZoneHsm,
   bspInitializeHsm,
   videoOrImagesZoneGetInitialState,
+  hsmDispatch,
 } from './hsm';
 // import { ArEventType } from '../type';
-import { getAutoschedule, getFile, getSyncSpec, getSrcDirectory, getZoneHsmList } from '../selector';
+import {
+  getAutoschedule,
+  getFile,
+  getSyncSpec,
+  getSrcDirectory,
+  getZoneHsmList,
+  // getHsmInitialized,
+  getHsms,
+  getHsmById,
+  getActiveStateIdByHsmId
+} from '../selector';
 import {
   BsDmId,
   DmSignState,
@@ -35,6 +50,8 @@ import {
 } from '@brightsign/bsdatamodel';
 import { hsmConstructorFunction } from './hsm/eventHandler';
 // import { ZoneType } from '@brightsign/bscore';
+
+const _queuedEvents: ArEventType[] = [];
 
 export function initPlayer(store: Store<BsBspState>) {
   return ((dispatch: any, getState: () => BsBspState) => {
@@ -131,9 +148,79 @@ export const startPlayback = (): BsBspNonThunkAction => {
     Promise.all(promises).then(() => {
       console.log('startPlayback nearly complete');
       console.log('wait for HSM initialization complete');
+      const hsmInitializationComplete = hsmInitialized(getState());
+      if (hsmInitializationComplete) {
+        const event: ArEventType = {
+          EventType: 'NOP',
+        };
+        dispatch(queueHsmEvent(event));
+      }
     });
 
   };
+};
+
+export const queueHsmEvent = (event: ArEventType): any => {
+  return ((dispatch: any, getState: any) => {
+    if (event.EventType !== 'NOP') {
+      _queuedEvents.push(event);
+    }
+    if (hsmInitialized(getState())) {
+      while (_queuedEvents.length > 0) {
+        dispatch(dispatchHsmEvent(_queuedEvents[0]));
+        _queuedEvents.shift();
+      }
+    }
+  });
+};
+
+function dispatchHsmEvent(
+  event: ArEventType
+): any {
+
+  return ((dispatch: any, getState: any) => {
+
+    console.log('dispatchHsmEvent:');
+    console.log(event.EventType);
+
+    const state: BsBspState = getState();
+
+    const playerHsm: BspHsm = getHsmById(state, 'player');
+    if (!isNil(playerHsm)) {
+      hsmDispatch(event, playerHsm.id, playerHsm.activeStateId);
+    }
+
+    const hsmMap: BspHsmMap = getHsms(state);
+    for (const hsmId in hsmMap) {
+      if (hsmId !== playerHsm.id) {
+        const activeState: BspHState | null = getActiveStateIdByHsmId(state, hsmId);
+        if (!isNil(activeState)) {
+          hsmDispatch(event, hsmId, activeState.id);
+        } else {
+          debugger;
+        }
+      }
+    }
+  });
+}
+
+const hsmInitialized = (state: BsBspState): boolean => {
+
+  const hsmMap: BspHsmMap = getHsms(state);
+  for (const hsmId in hsmMap) {
+    if (hsmMap.hasOwnProperty(hsmId)) {
+      const hsm: BspHsm = hsmMap[hsmId];
+      if (!hsm.initialized) {
+        return false;
+      }
+    }
+  }
+
+  // TEDTODO - need to check if the hsm's associated with zones exist yet
+  console.log('number of hsms:');
+  console.log(Object.keys(hsmMap).length);
+
+  return true;
 };
 
 export const getVideoOrImagesInitialState = (): BsBspAnyPromiseThunkAction => {
@@ -142,17 +229,3 @@ export const getVideoOrImagesInitialState = (): BsBspAnyPromiseThunkAction => {
     return Promise.resolve(videoOrImagesZoneGetInitialState);
   };
 };
-
-// export function queueHsmEvent(event: ArEventType) {
-//   return ((dispatch: any) => {
-//     if (event.EventType !== 'NOP') {
-//       _queuedEvents.push(event);
-//     }
-//     if (hsmInitialized()) {
-//       while (_queuedEvents.length > 0) {
-//         dispatch(dispatchHsmEvent(_queuedEvents[0]));
-//         _queuedEvents.shift();
-//       }
-//     }
-//   });
-// }

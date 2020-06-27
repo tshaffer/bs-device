@@ -167,7 +167,7 @@ export function constructorFunction(constructorHandler: () => void): void {
 export function hsmDispatch(
   event: ArEventType,
   reduxHsmId: string,
-  reduxActiveStateId: string,
+  reduxActiveStateId: string | null,
 ) {
 
   let action: any;
@@ -175,7 +175,7 @@ export function hsmDispatch(
 
   return ((dispatch: any, getState: () => any) => {
 
-    let reduxActiveState: BspHState | null = getHStateById(getState(), reduxActiveStateId);
+    let reduxActiveState = getHStateById(getState(), reduxActiveStateId);
 
     console.log('***** HSM.ts#Dispatch');
     console.log(event.EventType);

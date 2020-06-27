@@ -14,6 +14,21 @@ export function getHsmById(state: BsBspState, hsmId: string): BspHsm {
   return state.bsPlayer.hsmState.hsmById[hsmId];
 }
 
+export function getHsms(state: BsBspState): BspHsmMap {
+  return state.bsPlayer.hsmState.hsmById;
+}
+
+export const getActiveStateIdByHsmId = (
+  state: BsBspState,
+  hsmId: string
+): BspHState | null => {
+  const hsm: BspHsm = getHsmById(state, hsmId);
+  if (!isNil(hsm)) {
+    return getHStateById(state, hsm.activeStateId);
+  }
+  return null;
+};
+
 export function getHStateById(state: BsBspState, hStateId: string | null): BspHState | null {
   if (isNil(hStateId)) {
     return null;
