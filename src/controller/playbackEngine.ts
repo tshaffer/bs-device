@@ -20,7 +20,7 @@ import {
   bspCreateMediaZoneHsm,
 } from './hsm';
 // import { ArEventType } from '../type';
-import { getAutoschedule, getFile, getSyncSpec, getSrcDirectory } from '../selector';
+import { getAutoschedule, getFile, getSyncSpec, getSrcDirectory, getZoneHsmList } from '../selector';
 import {
   BsDmId,
   DmSignState,
@@ -30,6 +30,7 @@ import {
   DmZone,
   dmGetZonesForSign,
 } from '@brightsign/bsdatamodel';
+import { hsmConstructorFunction } from './hsm/eventHandler';
 // import { ZoneType } from '@brightsign/bscore';
 
 export function initPlayer(store: Store<BsBspState>) {
@@ -111,7 +112,15 @@ export const startPlayback = (): BsBspNonThunkAction => {
       const bsdmZone: DmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
       dispatch(bspCreateMediaZoneHsm(zoneId + '-' + bsdmZone.type, bsdmZone.type.toString(), bsdmZone));
     });
+
+    const promises: Array<Promise<any>> = [];
+
+    const zoneHsmList = getZoneHsmList(getState());
+    for (const zoneHsm of zoneHsmList) {
+      promises.push(dispatch(hsmConstructorFunction(zoneHsm.id)));
+    }
   };
+
 };
 
 // export function queueHsmEvent(event: ArEventType) {

@@ -5,6 +5,7 @@ import {
   // BspHsm,
   BspHState,
   BspStateType,
+  // BsBspAnyPromiseThunkAction,
 } from '../../type';
 // import {
 //   // getHsmById,
@@ -12,11 +13,22 @@ import {
 // } from '../../selector/hsm';
 import { isNil } from 'lodash';
 import { STPlayerEventHandler, STPlayingEventHandler, STWaitingEventHandler, initializePlayerStateMachine } from './playerHSM';
+import { videoOrImagesZoneConstructor } from './mediaZoneHsm';
+
+export const hsmConstructorFunction = (hsmId: string): any => {
+  return (dispatch: any, getState: any) => {
+    if (hsmId.indexOf('VideoOrImages') >= 0) {
+      return dispatch(videoOrImagesZoneConstructor(hsmId));
+    }
+  };
+};
 
 export const bspInitialPseudoStateHandler = (hsmId: string) => {
   return (dispatch: any, getState: any) => {
     if (hsmId === 'player') {
       return dispatch(initializePlayerStateMachine());
+    } else {
+      debugger;
     }
   };
 };

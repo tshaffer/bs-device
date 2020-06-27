@@ -52,3 +52,5 @@ export type BsBspVoidPromiseThunkAction =
   (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => Promise<void>;
 export type BsBspThunkAction<T> =
   (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => BsBspAction<T>;
+export type BsBspAnyPromiseThunkAction =
+  (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => Promise<any>;

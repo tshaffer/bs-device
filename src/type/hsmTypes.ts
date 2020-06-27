@@ -8,5 +8,6 @@ export class BspStateType {
   static Player = 'Player';
   static Playing = 'Playing';
   static Waiting = 'Waiting';
+  static Image = 'Image';
 }
 Object.freeze(BspStateType);

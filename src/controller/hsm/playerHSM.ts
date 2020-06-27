@@ -15,6 +15,7 @@ import {
   BspStateType,
   ArEventType,
   HSMStateData,
+  BsBspAnyPromiseThunkAction,
   // BspHsm
 } from '../../type';
 import { isNil } from 'lodash';
@@ -61,7 +62,7 @@ export const bspInitializePlayerHsm = (): any => {
   });
 };
 
-export const initializePlayerStateMachine = (): any => {
+export const initializePlayerStateMachine = (): BsBspAnyPromiseThunkAction => {
   return (dispatch: any, getState: any) => {
     console.log('invoke initializePlayerStateMachine');
 

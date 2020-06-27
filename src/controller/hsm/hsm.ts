@@ -2,6 +2,8 @@ import { HSMStateData, BspHState, BspHsm, HsmData } from '../../type/hsm';
 import { isNil } from 'lodash';
 import {
   ArEventType,
+  // BsBspAnyPromiseThunkAction,
+  BsBspVoidPromiseThunkAction,
 } from '../../type';
 import { addHsm } from '../../model/hsm';
 import {
@@ -35,7 +37,7 @@ export const bspCreateHsm = (
 export function bspInitializeHsm(
   hsmId: string,
   initialPseudoStateHandler: () => void,
-): any {
+): BsBspVoidPromiseThunkAction {
 
   return ((dispatch: any, getState: any) => {
 
