@@ -11,14 +11,15 @@ import {
   // dmGetInitialMediaStateIdForZone
 } from '@brightsign/bsdatamodel';
 import {
-  HsmData, BsBspNonThunkAction,
+  HsmData, BsBspNonThunkAction, BspHState,
   // MediaHState
 } from '../../type';
 import { ContentItemType } from '@brightsign/bscore';
 import { bspCreateImageState } from './imageState';
 import { isNil } from 'lodash';
 import { BspHsm } from '../../type';
-import { getHsmById } from '../../selector/hsm';
+import { getHsmById, getHStateById } from '../../selector/hsm';
+import { setActiveHState } from '../../model';
 
 export const bspCreateMediaZoneHsm = (hsmId: string, hsmType: string, bsdmZone: DmZone): BsBspNonThunkAction => {
   return ((dispatch: any, getState: any) => {
@@ -70,23 +71,15 @@ export const videoOrImagesZoneConstructor = (hsmId: string) => {
     // get the initial media state for the zone
     const bsdm: DmState = dmFilterDmState(getState());
     const hsm: BspHsm = getHsmById(getState(), hsmId);
-
+    let activeState: BspHState | null = null;
     const initialMediaStateId: BsDmId | null =
       dmGetInitialMediaStateIdForZone(bsdm, { id: hsm.hsmData!.zoneId });
     if (!isNil(initialMediaStateId)) {
       const initialMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: initialMediaStateId }) as DmMediaState;
-      console.log(initialMediaState);
-    //   initialMediaState = this.getInitialState(bsdm, initialMediaState);
-    //   for (const mediaHState of this.mediaHStates) {
-    //     if (mediaHState.mediaState.id === initialMediaState.id) {
-    //       this.activeState = mediaHState;
-    //       return;
-    //     }
-    //   }
+      activeState = getHStateById(getState(), initialMediaState.id);
     }
 
-    // // TEDTODO - verify that setting activeState to null is correct OR log error
-    // this.activeState = null;
+    dispatch(setActiveHState(hsmId, activeState));
 
     return Promise.resolve();
   };
