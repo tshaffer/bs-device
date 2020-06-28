@@ -30,29 +30,20 @@ export const bspCreatePlayerHsm = (): any => {
     console.log('invoke bspCreatePlayerHsm');
     dispatch(bspCreateHsm('player', BspHsmType.Player));
 
-    dispatch(bspCreateHState('top', BspStateType.Top, 'player'));
+    // TEDTODO - what is the superState supposed to be for the top state?
+    // it shouldn't need a superState because of its handler.
+    dispatch(bspCreateHState('top', BspStateType.Top, 'player', ''));
     const stTop: BspHState | null = getHStateById(getState(), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
 
     dispatch(setHsmTop('player', stTopId));
 
-    dispatch(bspCreateHState('player', BspStateType.Player, 'player'));
-    const stPlayer: BspHState | null = getHStateById(getState(), 'player');
-    if (!isNil(stPlayer)) {
-      stPlayer.superStateId = stTopId;
-    }
+    dispatch(bspCreateHState('player', BspStateType.Player, 'player', stTopId));
+    const stPlayer: BspHState = getHStateById(getState(), 'player') as BspHState;
 
-    dispatch(bspCreateHState('playing', BspStateType.Playing, 'player'));
-    const stPlaying: BspHState | null = getHStateById(getState(), 'playing');
-    if (!isNil(stPlaying)) {
-      stPlaying.superStateId = isNil(stPlayer) ? '' : stPlayer.id;
-    }
+    dispatch(bspCreateHState('playing', BspStateType.Playing, 'player', stPlayer.id));
 
-    dispatch(bspCreateHState('waiting', BspStateType.Waiting, 'player'));
-    const stWaiting: BspHState | null = getHStateById(getState(), 'waiting');
-    if (!isNil(stWaiting)) {
-      stWaiting.superStateId = isNil(stPlayer) ? '' : stPlayer.id;
-    }
+    dispatch(bspCreateHState('waiting', BspStateType.Waiting, 'player', stPlayer.id));
   });
 };
 

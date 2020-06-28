@@ -2,6 +2,7 @@ import {
   BsBspState,
   BspHsm,
   BspHState,
+  HStateData,
   // BspHsmType,
 } from '../type';
 import { isNil } from 'lodash';
@@ -34,6 +35,20 @@ export function getHStateById(state: BsBspState, hStateId: string | null): BspHS
     return null;
   }
   return state.bsPlayer.hsmState.hStateById[hStateId];
+}
+
+export function getHStateData(state: BsBspState, hStateId: string | null): HStateData | null {
+  if (isNil(hStateId)) {
+    return null;
+  }
+  const hState: BspHState | null = getHStateById(state, hStateId);
+  if (isNil(hState)) {
+    return null;
+  }
+  if (isNil(hState.hStateData)) {
+    return null;
+  }
+  return hState.hStateData;
 }
 
 export function getHsmInitialized(state: BsBspState, hsmId: string): boolean {

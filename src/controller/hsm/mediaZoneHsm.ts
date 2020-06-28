@@ -50,17 +50,20 @@ const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superSta
 
   return ((dispatch: any, getState: any) => {
 
-    const contentItemType = bsdmMediaState.contentItem.type;
-    switch (contentItemType) {
-      case ContentItemType.Image:
-        dispatch(bspCreateImageState(hsmId, bsdmMediaState, ''));
-        break;
-      case ContentItemType.Video:
-        debugger;
-        dispatch(bspCreateImageState(hsmId, bsdmMediaState, ''));
-        break;
-      default:
-        break;
+    const hsm: BspHsm = getHsmById(getState(), hsmId);
+    if (!isNil(hsm)) {
+      const contentItemType = bsdmMediaState.contentItem.type;
+      switch (contentItemType) {
+        case ContentItemType.Image:
+          dispatch(bspCreateImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          break;
+        case ContentItemType.Video:
+          debugger;
+          dispatch(bspCreateImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          break;
+        default:
+          break;
+      }
     }
   });
 };
@@ -90,7 +93,6 @@ export const videoOrImagesZoneGetInitialState = (hsmId: string): any => {
     const hsm: BspHsm = getHsmById(getState(), hsmId);
     console.log(getState());
     const initialState = getHStateById(getState(), hsm.activeStateId);
-    debugger;
     return Promise.resolve(initialState);
   };
 };

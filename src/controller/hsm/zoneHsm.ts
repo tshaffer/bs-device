@@ -15,7 +15,7 @@ export const bspCreateZoneHsm = (
     console.log('invoke bspCreateZoneHsm');
     dispatch(bspCreateHsm(hsmId, hsmType, hsmData));
 
-    dispatch(bspCreateHState('top', BspStateType.Top, hsmId));
+    dispatch(bspCreateHState('top', BspStateType.Top, hsmId, ''));
     const stTop: BspHState | null = getHStateById(getState(), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
 

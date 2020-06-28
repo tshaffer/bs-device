@@ -14,6 +14,7 @@ import {
 import { isNil } from 'lodash';
 import { STPlayerEventHandler, STPlayingEventHandler, STWaitingEventHandler, initializePlayerStateMachine } from './playerHSM';
 import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from './mediaZoneHsm';
+import { STImageStateEventHandler } from './imageState';
 
 export const hsmConstructorFunction = (hsmId: string): any => {
   return (dispatch: any, getState: any) => {
@@ -54,6 +55,8 @@ export const HStateEventHandler = (
           return dispatch(STPlayingEventHandler(hState, event, stateData));
         case BspStateType.Waiting:
           return dispatch(STWaitingEventHandler(hState, event, stateData));
+        case BspStateType.Image:
+          return dispatch(STImageStateEventHandler(hState, event, stateData));
         default:
           debugger;
           break;

@@ -5,13 +5,14 @@ export const bspCreateHState = (
   id: string,
   type: string,
   hsmId: string,
+  superStateId: string,
 ) => {
   return ((dispatch: any) => {
     const hState: BspHState = {
       id,
       type,
       hsmId,
-      superStateId: '',
+      superStateId,
     };
     dispatch(addHState(hState));
   });

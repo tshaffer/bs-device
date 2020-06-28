@@ -39,6 +39,12 @@ export interface BspHState {
   type: BspStateType;
   hsmId: string;
   superStateId: string;
+  hStateData?: HStateData;
+}
+export type HStateData = MediaHStateData;
+
+export interface MediaHStateData {
+  timeout: any;
 }
 
 export interface MediaHState extends BspHState {

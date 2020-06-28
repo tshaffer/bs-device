@@ -6,6 +6,7 @@ import {
   BspHsmMap,
   BspHStateMap,
   BspHState,
+  HStateData,
 } from '../type';
 import {
   BsBspModelAction,
@@ -26,6 +27,7 @@ export const SET_HSM_TOP: string = 'SET_HSM_TOP';
 export const SET_HSM_INITIALIZED: string = 'SET_HSM_INITIALIZED';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
+export const SET_HSTATE_DATA = 'SET_HSTATE_DATA';
 
 export type AddHsmAction = BsBspModelAction<Partial<BspHsm>>;
 export function addHsm(
@@ -74,9 +76,6 @@ export function setActiveHState(
   hsmId: string,
   activeState: BspHState | null,
 ): SetActiveHStateAction {
-  // if (hsmId !== 'player') {
-  //   debugger;
-  // }
   return {
     type: SET_ACTIVE_HSTATE,
     payload: {
@@ -93,6 +92,20 @@ export function addHState(
   return {
     type: ADD_HSTATE,
     payload: hState,
+  };
+}
+
+export type SetHStateDataAction = BsBspModelAction<Partial<BspHState>>;
+export function setHStateData(
+  id: string,
+  hStateData: HStateData,
+): SetHStateDataAction {
+  return {
+    type: SET_HSTATE_DATA,
+    payload: {
+      id,
+      hStateData,
+    }
   };
 }
 
@@ -149,6 +162,13 @@ const hStateById = (
     case ADD_HSTATE: {
       const id: string = (action.payload as BspHState).id;
       return { ...state, [id]: (action.payload as BspHState) };
+    }
+    case SET_HSTATE_DATA: {
+      const { id, hStateData } = action.payload as BspHState;
+      const newState = cloneDeep(state) as BspHStateMap;
+      const bspHState = newState[id];
+      bspHState.hStateData = hStateData;
+      return newState;
     }
     default:
       return state;

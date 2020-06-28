@@ -43,9 +43,7 @@ export function bspInitializeHsm(
 
     console.log('***** HSM.ts#bspInitializeHsm');
 
-    // before this call is made, the MediaZoneHsm has an activeState
-    // however, after making this call, a call to getState() will return null for activeState
-    // in bspInitialPseudoStateHandler / videoOrImagesZoneGetInitialState
+    // any reason why the following call is necessary? It causes breakage....
     // dispatch(setActiveHState(hsmId, null));
 
     // execute initial transition
