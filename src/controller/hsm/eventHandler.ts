@@ -55,6 +55,7 @@ export const HStateEventHandler = (
         case BspStateType.Waiting:
           return dispatch(STWaitingEventHandler(hState, event, stateData));
         default:
+          debugger;
           break;
       }
     }

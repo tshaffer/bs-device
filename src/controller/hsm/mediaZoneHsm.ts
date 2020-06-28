@@ -85,7 +85,12 @@ export const videoOrImagesZoneConstructor = (hsmId: string): BsBspVoidThunkActio
 
 export const videoOrImagesZoneGetInitialState = (hsmId: string): any => {
   return (dispatch: any, getState: any) => {
+    console.log('videoOrImagesZoneGetInitialState');
+    console.log(getState());
     const hsm: BspHsm = getHsmById(getState(), hsmId);
-    return Promise.resolve(getHStateById(getState(), hsm.activeStateId));
+    console.log(getState());
+    const initialState = getHStateById(getState(), hsm.activeStateId);
+    debugger;
+    return Promise.resolve(initialState);
   };
 };

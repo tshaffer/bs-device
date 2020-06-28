@@ -43,7 +43,10 @@ export function bspInitializeHsm(
 
     console.log('***** HSM.ts#bspInitializeHsm');
 
-    dispatch(setActiveHState(hsmId, null));
+    // before this call is made, the MediaZoneHsm has an activeState
+    // however, after making this call, a call to getState() will return null for activeState
+    // in bspInitialPseudoStateHandler / videoOrImagesZoneGetInitialState
+    // dispatch(setActiveHState(hsmId, null));
 
     // execute initial transition
     if (!isNil(initialPseudoStateHandler)) {

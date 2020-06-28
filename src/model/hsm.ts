@@ -74,6 +74,9 @@ export function setActiveHState(
   hsmId: string,
   activeState: BspHState | null,
 ): SetActiveHStateAction {
+  // if (hsmId !== 'player') {
+  //   debugger;
+  // }
   return {
     type: SET_ACTIVE_HSTATE,
     payload: {
