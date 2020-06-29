@@ -51,9 +51,12 @@ import {
 import { hsmConstructorFunction } from './hsm/eventHandler';
 // import { ZoneType } from '@brightsign/bscore';
 
+export let _bsBspStore: Store<BsBspState>;
+
 const _queuedEvents: ArEventType[] = [];
 
 export function initPlayer(store: Store<BsBspState>) {
+  _bsBspStore = store;
   return ((dispatch: any, getState: () => BsBspState) => {
     dispatch(launchHSM());
   });
@@ -160,6 +163,7 @@ export const startPlayback = (): BsBspNonThunkAction => {
   };
 };
 
+// TEDTODO - separate queues for each hsm?  
 export const queueHsmEvent = (event: ArEventType): any => {
   return ((dispatch: any, getState: any) => {
     if (event.EventType !== 'NOP') {
@@ -187,7 +191,7 @@ function dispatchHsmEvent(
 
     const playerHsm: BspHsm = getHsmById(state, 'player');
     if (!isNil(playerHsm)) {
-      hsmDispatch(event, playerHsm.id, playerHsm.activeStateId);
+      dispatch(hsmDispatch(event, playerHsm.id, playerHsm.activeStateId));
     }
 
     const hsmMap: BspHsmMap = getHsms(state);
@@ -195,7 +199,7 @@ function dispatchHsmEvent(
       if (hsmId !== playerHsm.id) {
         const activeState: BspHState | null = getActiveStateIdByHsmId(state, hsmId);
         if (!isNil(activeState)) {
-          hsmDispatch(event, hsmId, activeState.id);
+          dispatch(hsmDispatch(event, hsmId, activeState.id));
         } else {
           debugger;
         }

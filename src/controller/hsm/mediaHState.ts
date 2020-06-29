@@ -1,4 +1,6 @@
+import { Store } from 'redux';
 import {
+  BsBspState,
   BsBspVoidThunkAction,
   BsBspDispatch,
   ArEventType,
@@ -18,8 +20,15 @@ import {
 } from '../../type';
 import { EventType } from '@brightsign/bscore';
 import { setHStateData } from '../../model';
-import { getHStateData } from '../../selector';
+import {
+  getHStateData,
+  // getHsmById
+} from '../../selector';
 import { isNil } from 'lodash';
+import {
+  _bsBspStore,
+  queueHsmEvent
+ } from '../playbackEngine';
 
 export const mediaHStateEventHandler = (
   hState: BspHState,
@@ -49,6 +58,11 @@ export const mediaHStateExitHandler = (
   };
 };
 
+interface TimeoutEventCallbackParams {
+  hState: BspHState;
+  store: Store<BsBspState>;
+}
+
 export const launchTimer = (
   hState: BspHState,
 ): any => {
@@ -64,7 +78,11 @@ export const launchTimer = (
       if (event.type === EventType.Timer) {
         const interval: number = (event.data as DmTimer).interval;
         if (interval && interval > 0) {
-          const timeout = setTimeout(timeoutHandler, interval * 1000, hState.id);
+          const timeoutEventCallbackParams: TimeoutEventCallbackParams = {
+            hState,
+            store: getState(),
+          };
+          const timeout = setTimeout(timeoutHandler, interval * 1000, timeoutEventCallbackParams);
           dispatch(setHStateData(hState.id, { timeout }));
         }
       }
@@ -72,13 +90,18 @@ export const launchTimer = (
   };
 };
 
-const timeoutHandler = (mediaHState: any): void => {
+const timeoutHandler = (callbackParams: TimeoutEventCallbackParams): void => {
 
   const event: ArEventType = {
     EventType: EventType.Timer,
   };
 
   console.log(event);
-  // const reduxStore: any = getReduxStore();
-  // reduxStore.dispatch(mediaHState.stateMachine.dispatchEvent(event));
+  console.log(callbackParams);
+
+  // const { store } = callbackParams;
+  // const hsmId = hState.hsmId;
+  // const hsm = getHsmById(store.getState(), hsmId);
+  // TEDTODO - circular reference?
+  _bsBspStore.dispatch(queueHsmEvent(event));
 };
