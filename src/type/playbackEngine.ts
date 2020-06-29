@@ -32,8 +32,6 @@ export interface ArSyncSpec {
 
 export interface ArFileLUT { [fileName: string]: string; }
 
-export interface LUT { [key: string]: any; }
-
 export interface SubscribedEvents { [ eventKey: string]: BspHState; }
 
 export interface ArState {

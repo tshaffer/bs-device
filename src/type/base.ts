@@ -12,6 +12,8 @@ export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
 
+export interface LUT { [key: string]: any; }
+
 export interface BsBspModelState {
   hsmState: BspHsmState;
   presentationData: PresentationDataState;

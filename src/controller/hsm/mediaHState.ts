@@ -6,6 +6,9 @@ import {
   ArEventType,
   HStateData,
   HSMStateData,
+  MediaHState,
+  BspHsm,
+  MediaZoneHsmData,
 } from '../../type';
 import {
   DmState,
@@ -14,21 +17,28 @@ import {
   dmGetEventStateById,
   DmEvent,
   DmTimer,
+  DmMediaState,
+  DmcEvent,
+  DmcMediaState,
+  dmGetMediaStateById,
+  dmFilterDmState,
+  DmcTransition,
+  DmSuperStateContentItem,
 } from '@brightsign/bsdatamodel';
 import {
   BspHState,
 } from '../../type';
-import { EventType } from '@brightsign/bscore';
+import { EventType, EventIntrinsicAction, ContentItemType } from '@brightsign/bscore';
 import { setHStateData } from '../../model';
 import {
-  getHStateData,
+  getHStateData, getHsmById,
   // getHsmById
 } from '../../selector';
 import { isNil } from 'lodash';
 import {
   _bsBspStore,
   queueHsmEvent
- } from '../playbackEngine';
+} from '../playbackEngine';
 
 export const mediaHStateEventHandler = (
   hState: BspHState,
@@ -36,11 +46,85 @@ export const mediaHStateEventHandler = (
   stateData: HSMStateData
 ): any => {
 
-  return (dispatch: BsBspDispatch) => {
+  return (dispatch: BsBspDispatch, getState: any) => {
+
     console.log('mediaHStateEventHandler');
+
+    const mediaState: DmMediaState = dmGetMediaStateById(
+      dmFilterDmState(getState()), { id: hState.id }) as DmMediaState;
+
+    const matchedEvent: DmcEvent | null = getMatchedEvent(mediaState, event);
+
+    if (!isNil(matchedEvent)) {
+      return executeEventMatchAction(getState(), hState, matchedEvent, stateData);
+    }
+
     stateData.nextStateId = hState.superStateId;
     return 'SUPER';
   };
+};
+
+const executeEventMatchAction = (state: any, hState: BspHState, event: DmcEvent, stateData: HSMStateData): string => {
+  if (isNil(event.transitionList) || event.transitionList.length === 0) {
+    switch (event.action) {
+      case EventIntrinsicAction.None: {
+        console.log('remain on current state, playContinuous');
+        return 'HANDLED';
+      }
+      case EventIntrinsicAction.ReturnToPriorState: {
+        console.log('return prior state');
+        /*
+      nextStateId = ...previousStateId
+      nextState = m.stateMachine.stateTable[nextState$]
+      return 'TRANSITION'
+        */
+        return 'HANDLED';
+      }
+      default: {
+        // AUTOTRONTODO
+        debugger;
+      }
+    }
+  } else {
+    const transition: DmcTransition = event.transitionList[0]; // AUTOTRONTODO - or event.defaultTransition?
+    const targetMediaStateId: BsDmId = transition.targetMediaStateId;
+    const hsmId: string = hState.hsmId;
+    const zoneHsm: BspHsm = getHsmById(state, hsmId);
+
+    const mediaZoneHsmData: MediaZoneHsmData = zoneHsm.hsmData as MediaZoneHsmData;
+
+    let targetHSMState: MediaHState = mediaZoneHsmData.mediaStateIdToHState[targetMediaStateId];
+    if (!isNil(targetHSMState)) {
+
+      // check to see if target of transition is a superState
+      const targetMediaState: DmMediaState = targetHSMState.mediaState;
+      if (targetMediaState.contentItem.type === ContentItemType.SuperState) {
+        const superStateContentItem = targetMediaState.contentItem as DmSuperStateContentItem;
+        const initialMediaStateId = superStateContentItem.initialMediaStateId;
+        targetHSMState = mediaZoneHsmData.mediaStateIdToHState[initialMediaStateId];
+      }
+
+      stateData.nextStateId! = targetHSMState.id;
+      return 'TRANSITION';
+    }
+  }
+  return '';
+};
+
+const eventDataMatches = (matchedEvent: DmcEvent, dispatchedEvent: ArEventType): boolean => {
+  return true;
+};
+
+const getMatchedEvent = (mediaState: DmMediaState, dispatchedEvent: ArEventType): DmcEvent | null => {
+  const mediaStateEvents: DmcEvent[] = (mediaState as DmcMediaState).eventList;
+  for (const mediaStateEvent of mediaStateEvents) {
+    if (mediaStateEvent.type === dispatchedEvent.EventType) {
+      if (eventDataMatches(mediaStateEvent, dispatchedEvent)) {
+        return mediaStateEvent;
+      }
+    }
+  }
+  return null;
 };
 
 export const mediaHStateExitHandler = (
