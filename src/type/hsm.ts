@@ -3,7 +3,7 @@ import {
   BspHsmType,
   BspStateType
 } from './hsmTypes';
-import { DmMediaState } from '@brightsign/bsdatamodel';
+// import { DmMediaState } from '@brightsign/bsdatamodel';
 import { LUT } from '../..';
 
 export type BspHsmMap = BspMap<BspHsm>;
@@ -18,7 +18,7 @@ export interface BspHsm {
   hsmData?: HsmData;
 }
 
-export type HsmData = ZoneHsmData;
+export type HsmData = ZoneHsmData | MediaZoneHsmData  ;
 
 export interface ZoneHsmData {
   zoneId: string;
@@ -29,7 +29,7 @@ export interface ZoneHsmData {
 
   initialMediaStateId: string;
 
-  // mediaStateIds
+  // mediaStateIds?
 }
 
 export interface MediaZoneHsmData extends ZoneHsmData {
@@ -50,7 +50,8 @@ export interface MediaHStateData {
 }
 
 export interface MediaHState extends BspHState {
-  mediaState: DmMediaState;
+  // mediaState: DmMediaState;
+  mediaStateId: string;
 }
 
 export interface HSMStateData {

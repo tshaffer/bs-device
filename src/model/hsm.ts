@@ -7,6 +7,7 @@ import {
   BspHStateMap,
   BspHState,
   HStateData,
+  HsmData,
 } from '../type';
 import {
   BsBspModelAction,
@@ -25,6 +26,7 @@ import { combineReducers } from 'redux';
 export const ADD_HSM: string = 'ADD_HSM';
 export const SET_HSM_TOP: string = 'SET_HSM_TOP';
 export const SET_HSM_INITIALIZED: string = 'SET_HSM_INITIALIZED';
+export const SET_HSM_DATA: string = 'SET_HSM_DATA';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
 export const SET_HSTATE_DATA = 'SET_HSTATE_DATA';
@@ -67,6 +69,19 @@ export function setHsmInitialized(
     payload: {
       id,
       initialized,
+    }
+  };
+}
+
+export type SetHsmDataAction = BsBspModelAction<Partial<BspHsm>>;
+export function setHsmData(
+  id: string,
+  hsmData: HsmData): SetHsmDataAction {
+  return {
+    type: SET_HSM_DATA,
+    payload: {
+      id,
+      hsmData,
     }
   };
 }
@@ -131,10 +146,18 @@ const hsmById = (
     }
     case SET_HSM_INITIALIZED: {
       const id: string = (action as SetHsmInitializedAction).payload.id as string;
-      const initialized: boolean  = (action as SetHsmInitializedAction).payload.initialized!;
+      const initialized: boolean = (action as SetHsmInitializedAction).payload.initialized!;
       const newState = cloneDeep(state) as BspHsmMap;
       const hsm: BspHsm = newState[id];
       hsm.initialized = initialized;
+      return newState;
+    }
+    case SET_HSM_DATA: {
+      const id: string = (action as SetHsmDataAction).payload.id as string;
+      const hsmData: HsmData = (action as SetHsmDataAction).payload.hsmData!;
+      const newState = cloneDeep(state) as BspHsmMap;
+      const hsm: BspHsm = newState[id];
+      hsm.hsmData = hsmData;
       return newState;
     }
     case SET_ACTIVE_HSTATE: {

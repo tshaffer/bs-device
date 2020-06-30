@@ -9,6 +9,7 @@ import {
   MediaHState,
   BspHsm,
   MediaZoneHsmData,
+  // HsmData,
 } from '../../type';
 import {
   DmState,
@@ -29,7 +30,10 @@ import {
   BspHState,
 } from '../../type';
 import { EventType, EventIntrinsicAction, ContentItemType } from '@brightsign/bscore';
-import { setHStateData } from '../../model';
+import {
+  setHStateData,
+  // setHsmData
+} from '../../model';
 import {
   getHStateData, getHsmById,
   // getHsmById
@@ -64,7 +68,12 @@ export const mediaHStateEventHandler = (
   };
 };
 
-const executeEventMatchAction = (state: any, hState: BspHState, event: DmcEvent, stateData: HSMStateData): string => {
+const executeEventMatchAction = (
+  state: BsBspState,
+  hState: BspHState,
+  event: DmcEvent,
+  stateData: HSMStateData
+): string => {
   if (isNil(event.transitionList) || event.transitionList.length === 0) {
     switch (event.action) {
       case EventIntrinsicAction.None: {
@@ -97,11 +106,16 @@ const executeEventMatchAction = (state: any, hState: BspHState, event: DmcEvent,
     if (!isNil(targetHSMState)) {
 
       // check to see if target of transition is a superState
-      const targetMediaState: DmMediaState = targetHSMState.mediaState;
-      if (targetMediaState.contentItem.type === ContentItemType.SuperState) {
-        const superStateContentItem = targetMediaState.contentItem as DmSuperStateContentItem;
-        const initialMediaStateId = superStateContentItem.initialMediaStateId;
-        targetHSMState = mediaZoneHsmData.mediaStateIdToHState[initialMediaStateId];
+      const targetMediaState: DmMediaState | null = dmGetMediaStateById(
+        dmFilterDmState(state), { id: targetHSMState.id });
+      if (!isNil(targetMediaState)) {
+        if (targetMediaState.contentItem.type === ContentItemType.SuperState) {
+          const superStateContentItem = targetMediaState.contentItem as DmSuperStateContentItem;
+          const initialMediaStateId = superStateContentItem.initialMediaStateId;
+          targetHSMState = mediaZoneHsmData.mediaStateIdToHState[initialMediaStateId];
+        }
+      } else {
+        debugger;
       }
 
       stateData.nextStateId! = targetHSMState.id;

@@ -61,6 +61,10 @@ export function getPoolAssetFiles(state: BsBspState): ArFileLUT {
   return poolAssetFiles;
 }
 
+export function getPoolFilePath(state: BsBspState, fileName: string): string {
+  return getPoolAssetFiles(state)[fileName];
+}
+
 export const getSyncSpecFile = (state: BsBspState, fileName: string): Promise<object> => {
 
   const syncSpec = getSyncSpec(state);

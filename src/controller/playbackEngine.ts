@@ -99,7 +99,7 @@ export const restartPlayback = (presentationName: string): BsBspVoidPromiseThunk
   return (dispatch: any, getState: any) => {
     const autoSchedule: BspSchedule | null = getAutoschedule(getState());
     if (!isNil(autoSchedule)) {
-      // TEDTODO - only a single scheduled item is currently supported
+      //  - only a single scheduled item is currently supported
       const scheduledPresentation = autoSchedule.scheduledPresentations[0];
       const presentationToSchedule = scheduledPresentation.presentationToSchedule;
       presentationName = presentationToSchedule.name;
@@ -163,7 +163,7 @@ export const startPlayback = (): BsBspNonThunkAction => {
   };
 };
 
-// TEDTODO - separate queues for each hsm?  
+// TEDTODO - separate queues for each hsm?
 export const queueHsmEvent = (event: ArEventType): any => {
   return ((dispatch: any, getState: any) => {
     if (event.EventType !== 'NOP') {

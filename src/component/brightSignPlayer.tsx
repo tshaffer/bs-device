@@ -8,10 +8,10 @@ import {
   initPresentation,
 } from '../controller/appController';
 import {
-  BspSchedule,
+  BspSchedule, BspHsmMap,
 } from '../type';
-import { getAutoschedule } from '../selector';
-import { isNil } from 'lodash';
+import { getAutoschedule, getHsms } from '../selector';
+// import { isNil } from 'lodash';
 
 // -----------------------------------------------------------------------
 // Types
@@ -20,6 +20,7 @@ import { isNil } from 'lodash';
 export interface BrightSignPlayerProps {
   autoschedule: BspSchedule;
   bsdm: DmState;
+  hsmMap: BspHsmMap;
   onInitPresentation: () => any;
 }
 
@@ -40,14 +41,34 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
   }
 
   render() {
-    // postMessage={this.props.postMessage}
-    if (isNil(this.props.autoschedule)) {
+
+    let initializationComplete = true;
+
+    if (this.props.bsdm.zones.allZones.length === 0 ||
+      Object.keys(this.props.hsmMap).length === 0) {
+      initializationComplete = false;
+    }
+
+    for (const hsmId in this.props.hsmMap) {
+      if (this.props.hsmMap.hasOwnProperty(hsmId)) {
+        const hsm = this.props.hsmMap[hsmId];
+        if (!hsm.initialized) {
+          initializationComplete = false;
+        }
+      }
+    }
+
+    if (initializationComplete) {
       return (
-        <div>Pizza cooking</div>
+        <div>
+          Presentation here...
+        </div>
       );
     } else {
       return (
-        <div>Pizza served</div>
+        <div>
+          Waiting for the presentation to be loaded...
+        </div>
       );
     }
   }
@@ -67,6 +88,7 @@ function mapStateToProps(state: any) {
   return {
     bsdm: state.bsdm,
     autoschedule: getAutoschedule(state),
+    hsmMap: getHsms(state),
   };
 }
 

@@ -11,7 +11,11 @@ import {
   // dmGetInitialMediaStateIdForZone
 } from '@brightsign/bsdatamodel';
 import {
-  HsmData, BsBspNonThunkAction, BspHState, BsBspVoidThunkAction,
+  // HsmData,
+  MediaZoneHsmData,
+  BsBspNonThunkAction,
+  BspHState,
+  BsBspVoidThunkAction,
   // MediaHState
 } from '../../type';
 import { ContentItemType } from '@brightsign/bscore';
@@ -19,19 +23,20 @@ import { bspCreateImageState } from './imageState';
 import { isNil } from 'lodash';
 import { BspHsm } from '../../type';
 import { getHsmById, getHStateById } from '../../selector/hsm';
-import { setActiveHState } from '../../model';
+import { setActiveHState, setHsmData } from '../../model';
 
 export const bspCreateMediaZoneHsm = (hsmId: string, hsmType: string, bsdmZone: DmZone): BsBspNonThunkAction => {
   return ((dispatch: any, getState: any) => {
     console.log('invoke bspCreateZoneHsm');
 
-    const hsmData: HsmData = {
+    const hsmData: MediaZoneHsmData = {
       zoneId: bsdmZone.id,
       x: bsdmZone.position.x,
       y: bsdmZone.position.y,
       height: bsdmZone.position.height,
       width: bsdmZone.position.width,
-      initialMediaStateId: bsdmZone.initialMediaStateId
+      initialMediaStateId: bsdmZone.initialMediaStateId,
+      mediaStateIdToHState: {},
     };
 
     dispatch(bspCreateZoneHsm(hsmId, hsmType, hsmData));
@@ -42,6 +47,11 @@ export const bspCreateMediaZoneHsm = (hsmId: string, hsmType: string, bsdmZone: 
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
       dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
+      const hState: BspHState | null = getHStateById(getState(), bsdmMediaState.id);
+      if (!isNil(hState)) {
+        hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
+        dispatch(setHsmData(hsmId, hsmData));
+      }
     }
   });
 };

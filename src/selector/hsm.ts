@@ -7,6 +7,7 @@ import {
 } from '../type';
 import { isNil } from 'lodash';
 import { BspHsmMap } from '../..';
+// import { DmMediaState, dmGetMediaStateById, dmFilterDmState } from '@brightsign/bsdatamodel';
 
 // ------------------------------------
 // Selectors
@@ -67,4 +68,17 @@ export function getZoneHsmList(state: BsBspState): BspHsm[] {
     }
   }
   return hsmList;
+}
+
+export function getActiveMediaStateId(state: BsBspState, zoneId: string): string {
+  const zoneHsmList: BspHsm[] = getZoneHsmList(state);
+  for (const zoneHsm of zoneHsmList) {
+    if (zoneHsm.id.indexOf(zoneId) >= 0) {
+      const hState: BspHState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
+      if (!isNil(hState)) {
+        return hState.id;
+      }
+    }
+  }
+  return '';
 }
