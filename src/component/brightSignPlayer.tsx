@@ -11,6 +11,7 @@ import {
   BspSchedule, BspHsmMap,
 } from '../type';
 import { getAutoschedule, getHsms } from '../selector';
+import { Sign } from './sign';
 // import { isNil } from 'lodash';
 
 // -----------------------------------------------------------------------
@@ -60,9 +61,9 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 
     if (initializationComplete) {
       return (
-        <div>
-          Presentation here...
-        </div>
+        <Sign
+          bsdm={this.props.bsdm}
+        />
       );
     } else {
       return (
