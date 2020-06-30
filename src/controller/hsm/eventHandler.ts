@@ -5,6 +5,8 @@ import {
   // BspHsm,
   BspHState,
   BspStateType,
+  BsBspDispatch,
+  // BsBspState,
   // BsBspAnyPromiseThunkAction,
 } from '../../type';
 // import {
@@ -17,7 +19,7 @@ import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from '
 import { STImageStateEventHandler } from './imageState';
 
 export const hsmConstructorFunction = (hsmId: string): any => {
-  return (dispatch: any, getState: any) => {
+  return (dispatch: BsBspDispatch) => {
     if (hsmId.indexOf('VideoOrImages') >= 0) {
       return dispatch(videoOrImagesZoneConstructor(hsmId));
     }
@@ -25,7 +27,7 @@ export const hsmConstructorFunction = (hsmId: string): any => {
 };
 
 export const bspInitialPseudoStateHandler = (hsmId: string) => {
-  return (dispatch: any, getState: any) => {
+  return (dispatch: BsBspDispatch) => {
     if (hsmId === 'player') {
       return dispatch(initializePlayerStateMachine());
     } else if (hsmId.indexOf('VideoOrImages') >= 0) {
@@ -43,7 +45,7 @@ export const HStateEventHandler = (
   event: ArEventType,
   stateData: HSMStateData
 ): any => {
-  return ((dispatch: any, getState: any) => {
+  return ((dispatch: BsBspDispatch) => {
     // const hState: BspHState | null = getHStateById(state, activeStateId);
     if (!isNil(hState)) {
       switch (hState.type) {
@@ -68,7 +70,7 @@ export const HStateEventHandler = (
 };
 
 const STTopEventHandler = (hState: BspHState, _: ArEventType, stateData: HSMStateData) => {
-  return ((dispatch: any) => {
+  return ((dispatch: BsBspDispatch) => {
     stateData.nextStateId = null;
     return 'IGNORED';
   });

@@ -30,8 +30,6 @@ export const bspCreatePlayerHsm = (): any => {
     console.log('invoke bspCreatePlayerHsm');
     dispatch(bspCreateHsm('player', BspHsmType.Player));
 
-    // TEDTODO - what is the superState supposed to be for the top state?
-    // it shouldn't need a superState because of its handler.
     dispatch(bspCreateHState('top', BspStateType.Top, 'player', ''));
     const stTop: BspHState | null = getHStateById(getState(), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
@@ -60,8 +58,7 @@ export const initializePlayerStateMachine = (): BsBspAnyPromiseThunkAction => {
   return (dispatch: any, getState: any) => {
     console.log('invoke initializePlayerStateMachine');
 
-    // TEDTODO - BIG
-    // HOW TO GET restartPlayback here?
+    // TEDTODO - HOW TO GET restartPlayback here?
     // it should be stored, though not as a function, in redux
     return dispatch(restartPlayback(''))
       .then(() => {

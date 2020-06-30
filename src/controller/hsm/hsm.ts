@@ -2,8 +2,9 @@ import { HSMStateData, BspHState, BspHsm, HsmData } from '../../type/hsm';
 import { isNil } from 'lodash';
 import {
   ArEventType,
-  // BsBspAnyPromiseThunkAction,
   BsBspVoidPromiseThunkAction,
+  BsBspDispatch,
+  BsBspState,
 } from '../../type';
 import { addHsm } from '../../model/hsm';
 import {
@@ -21,7 +22,7 @@ export const bspCreateHsm = (
   hsmType: string,
   hsmData?: HsmData,
 ) => {
-  return ((dispatch: any) => {
+  return ((dispatch: BsBspDispatch) => {
     console.log('***** HSM.ts#bspCreateHsm');
     dispatch(addHsm({
       id: hsmId,
@@ -39,7 +40,7 @@ export function bspInitializeHsm(
   initialPseudoStateHandler: () => void,
 ): BsBspVoidPromiseThunkAction {
 
-  return ((dispatch: any, getState: any) => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
 
     console.log('***** HSM.ts#bspInitializeHsm');
 
@@ -70,7 +71,7 @@ function completeHsmInitialization(
 
   let action: any;
 
-  return ((dispatch: any, getState: any) => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
 
     // TEDTODO - necessary to have separate variables activeState and reduxActiveState?
 
@@ -174,7 +175,7 @@ export function hsmDispatch(
   let action: any;
   let status: string;
 
-  return ((dispatch: any, getState: () => any) => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
 
     let reduxActiveState = getHStateById(getState(), reduxActiveStateId);
 

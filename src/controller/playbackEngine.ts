@@ -5,19 +5,17 @@ import { Store } from 'redux';
 
 import {
   BsBspState,
-  // BsBspNonThunkAction,
   BspSchedule,
   ArSyncSpecDownload,
   ArSyncSpec,
-  // BsBspVoidThunkAction,
   BsBspVoidPromiseThunkAction,
-  BsBspNonThunkAction,
   BsBspAnyPromiseThunkAction,
   ArEventType,
   BspHsmMap,
   BspHsm,
   BspHState,
-  // ArEventType,
+  BsBspDispatch,
+  BsBspVoidThunkAction,
 } from '../type';
 import {
   bspCreatePlayerHsm,
@@ -27,14 +25,12 @@ import {
   videoOrImagesZoneGetInitialState,
   hsmDispatch,
 } from './hsm';
-// import { ArEventType } from '../type';
 import {
   getAutoschedule,
   getFile,
   getSyncSpec,
   getSrcDirectory,
   getZoneHsmList,
-  // getHsmInitialized,
   getHsms,
   getHsmById,
   getActiveStateIdByHsmId
@@ -49,7 +45,6 @@ import {
   dmGetZonesForSign,
 } from '@brightsign/bsdatamodel';
 import { hsmConstructorFunction } from './hsm/eventHandler';
-// import { ZoneType } from '@brightsign/bscore';
 
 export let _bsBspStore: Store<BsBspState>;
 
@@ -57,13 +52,13 @@ const _queuedEvents: ArEventType[] = [];
 
 export function initPlayer(store: Store<BsBspState>) {
   _bsBspStore = store;
-  return ((dispatch: any, getState: () => BsBspState) => {
+  return ((dispatch: BsBspDispatch) => {
     dispatch(launchHSM());
   });
 }
 
 export function launchHSM() {
-  return ((dispatch: any) => {
+  return ((dispatch: BsBspDispatch) => {
     dispatch(bspCreatePlayerHsm());
     dispatch(bspInitializePlayerHsm());
   });
@@ -96,7 +91,7 @@ function getSyncSpecReferencedFile(fileName: string, syncSpec: ArSyncSpec, rootP
 export const restartPlayback = (presentationName: string): BsBspVoidPromiseThunkAction => {
   console.log('invoke restartPlayback');
 
-  return (dispatch: any, getState: any) => {
+  return (dispatch: BsBspDispatch, getState: () => BsBspState) => {
     const autoSchedule: BspSchedule | null = getAutoschedule(getState());
     if (!isNil(autoSchedule)) {
       //  - only a single scheduled item is currently supported
@@ -121,10 +116,10 @@ export const restartPlayback = (presentationName: string): BsBspVoidPromiseThunk
   };
 };
 
-export const startPlayback = (): BsBspNonThunkAction => {
+export const startPlayback = (): BsBspVoidThunkAction => {
   console.log('invoke startPlayback');
 
-  return (dispatch: any, getState: any) => {
+  return (dispatch: BsBspDispatch, getState: () => BsBspState) => {
 
     const bsdm: DmState = getState().bsdm;
     console.log('startPlayback');
@@ -136,12 +131,12 @@ export const startPlayback = (): BsBspNonThunkAction => {
       dispatch(bspCreateMediaZoneHsm(zoneId + '-' + bsdmZone.type, bsdmZone.type.toString(), bsdmZone));
     });
 
-    const promises: Array<Promise<any>> = [];
+    const promises: Array<Promise<void>> = [];
 
     const zoneHsmList = getZoneHsmList(getState());
     for (const zoneHsm of zoneHsmList) {
       dispatch(hsmConstructorFunction(zoneHsm.id));
-      const action = bspInitializeHsm(
+      const action: BsBspVoidPromiseThunkAction = bspInitializeHsm(
         zoneHsm.id,
         getVideoOrImagesInitialState
       );
@@ -164,8 +159,8 @@ export const startPlayback = (): BsBspNonThunkAction => {
 };
 
 // TEDTODO - separate queues for each hsm?
-export const queueHsmEvent = (event: ArEventType): any => {
-  return ((dispatch: any, getState: any) => {
+export const queueHsmEvent = (event: ArEventType): BsBspVoidThunkAction => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
     if (event.EventType !== 'NOP') {
       _queuedEvents.push(event);
     }
@@ -180,9 +175,9 @@ export const queueHsmEvent = (event: ArEventType): any => {
 
 function dispatchHsmEvent(
   event: ArEventType
-): any {
+): BsBspVoidThunkAction {
 
-  return ((dispatch: any, getState: any) => {
+  return ((dispatch: BsBspDispatch, getState: () => BsBspState) => {
 
     console.log('dispatchHsmEvent:');
     console.log(event.EventType);
@@ -228,7 +223,7 @@ const hsmInitialized = (state: BsBspState): boolean => {
 };
 
 export const getVideoOrImagesInitialState = (): BsBspAnyPromiseThunkAction => {
-  return (dispatch: any, getState: any) => {
+  return () => {
     console.log('invoke getVideoOrImagesInitialState');
     return Promise.resolve(videoOrImagesZoneGetInitialState);
   };
