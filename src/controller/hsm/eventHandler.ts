@@ -1,20 +1,17 @@
 import {
   ArEventType,
-  // BsBspState,
   HSMStateData,
-  // BspHsm,
   BspHState,
   BspStateType,
   BsBspDispatch,
-  // BsBspState,
-  // BsBspAnyPromiseThunkAction,
 } from '../../type';
-// import {
-//   // getHsmById,
-//   getHStateById
-// } from '../../selector/hsm';
 import { isNil } from 'lodash';
-import { STPlayerEventHandler, STPlayingEventHandler, STWaitingEventHandler, initializePlayerStateMachine } from './playerHSM';
+import {
+  STPlayerEventHandler,
+  STPlayingEventHandler,
+  STWaitingEventHandler,
+  initializePlayerStateMachine,
+} from './playerHSM';
 import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from './mediaZoneHsm';
 import { STImageStateEventHandler } from './imageState';
 
@@ -40,13 +37,10 @@ export const bspInitialPseudoStateHandler = (hsmId: string) => {
 
 export const HStateEventHandler = (
   hState: BspHState,
-  // state: BsBspState,
-  // activeStateId: string,
   event: ArEventType,
   stateData: HSMStateData
 ): any => {
   return ((dispatch: BsBspDispatch) => {
-    // const hState: BspHState | null = getHStateById(state, activeStateId);
     if (!isNil(hState)) {
       switch (hState.type) {
         case BspStateType.Top:

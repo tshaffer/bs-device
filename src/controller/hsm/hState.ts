@@ -1,5 +1,6 @@
 import { BspHState } from '../../type/hsm';
 import { addHState } from '../../model';
+import { BsBspDispatch } from '../../type';
 
 export const bspCreateHState = (
   id: string,
@@ -7,7 +8,7 @@ export const bspCreateHState = (
   hsmId: string,
   superStateId: string,
 ) => {
-  return ((dispatch: any) => {
+  return ((dispatch: BsBspDispatch) => {
     const hState: BspHState = {
       id,
       type,

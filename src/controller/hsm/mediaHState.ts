@@ -1,4 +1,3 @@
-import { Store } from 'redux';
 import {
   BsBspState,
   BsBspVoidThunkAction,
@@ -9,7 +8,6 @@ import {
   MediaHState,
   BspHsm,
   MediaZoneHsmData,
-  // HsmData,
 } from '../../type';
 import {
   DmState,
@@ -32,11 +30,9 @@ import {
 import { EventType, EventIntrinsicAction, ContentItemType } from '@brightsign/bscore';
 import {
   setHStateData,
-  // setHsmData
 } from '../../model';
 import {
   getHStateData, getHsmById,
-  // getHsmById
 } from '../../selector';
 import { isNil } from 'lodash';
 import {
@@ -48,9 +44,9 @@ export const mediaHStateEventHandler = (
   hState: BspHState,
   event: ArEventType,
   stateData: HSMStateData
-): any => {
+): BsBspVoidThunkAction => {
 
-  return (dispatch: BsBspDispatch, getState: any) => {
+  return (dispatch: BsBspDispatch, getState: () => BsBspState) => {
 
     console.log('mediaHStateEventHandler');
 
@@ -82,11 +78,6 @@ const executeEventMatchAction = (
       }
       case EventIntrinsicAction.ReturnToPriorState: {
         console.log('return prior state');
-        /*
-      nextStateId = ...previousStateId
-      nextState = m.stateMachine.stateTable[nextState$]
-      return 'TRANSITION'
-        */
         return 'HANDLED';
       }
       default: {
@@ -145,12 +136,12 @@ export const mediaHStateExitHandler = (
   hStateId: string,
 ): BsBspVoidThunkAction => {
 
-  return (dispatch: BsBspDispatch, getState: any) => {
+  return (dispatch: BsBspDispatch, getState: () => BsBspState) => {
     console.log('mediaHStateExitHandler');
     const hStateData: HStateData | null = getHStateData(getState(), hStateId);
     if (!isNil(hStateData) && !isNil(hStateData.timeout)) {
       clearTimeout(hStateData.timeout);
-      // TODO - this may fail - dispatching an action inside of a whatever
+      // TEDTODO - is it okay to dispatching an action inside of a whatever
       dispatch(setHStateData(hStateId, { timeout: null }));
     }
   };
@@ -158,14 +149,13 @@ export const mediaHStateExitHandler = (
 
 interface TimeoutEventCallbackParams {
   hState: BspHState;
-  store: Store<BsBspState>;
 }
 
 export const launchTimer = (
   hState: BspHState,
-): any => {
+): BsBspVoidThunkAction => {
 
-  return (dispatch: any, getState: any) => {
+  return (dispatch: BsBspDispatch, getState: () => BsBspState) => {
 
     // at least part of this will move somwhere else
     const bsdm: DmState = getState().bsdm;
@@ -178,7 +168,6 @@ export const launchTimer = (
         if (interval && interval > 0) {
           const timeoutEventCallbackParams: TimeoutEventCallbackParams = {
             hState,
-            store: getState(),
           };
           const timeout = setTimeout(timeoutHandler, interval * 1000, timeoutEventCallbackParams);
           dispatch(setHStateData(hState.id, { timeout }));
