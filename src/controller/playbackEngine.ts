@@ -53,7 +53,7 @@ const _queuedEvents: ArEventType[] = [];
 export function initPlayer(store: Store<BsBspState>) {
   _bsBspStore = store;
   return ((dispatch: BsBspDispatch) => {
-    dispatch(launchHSM());
+    // dispatch(launchHSM());
   });
 }
 
