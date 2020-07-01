@@ -7,13 +7,13 @@ import { setHsmTop } from '../../model';
 // import { BspHsmType } from "../../type/hsmTypes";
 
 export const bspCreateZoneHsm = (
-  hsmId: string,
+  hsmName: string,
   hsmType: string,
   hsmData: HsmData
 ): any => {
   return ((dispatch: any, getState: any) => {
     console.log('invoke bspCreateZoneHsm');
-    dispatch(bspCreateHsm(hsmId, hsmType, hsmData));
+    const hsmId: string = dispatch(bspCreateHsm(hsmName, hsmType, hsmData));
 
     dispatch(bspCreateHState('top', BspStateType.Top, hsmId, ''));
     const stTop: BspHState | null = getHStateById(getState(), 'top');

@@ -1,5 +1,6 @@
 /** @module Model:template */
 
+import { combineReducers } from 'redux';
 import {
   BspHsmState,
   BspHsm,
@@ -17,7 +18,6 @@ import {
   isObject,
   isNil,
 } from 'lodash';
-import { combineReducers } from 'redux';
 
 // ------------------------------------
 // Constants

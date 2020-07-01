@@ -10,7 +10,7 @@ import {
 } from '../playbackEngine';
 import {
   // getHsmById,
-  getHStateById
+  getHStateById, getHsmByName
 } from '../../selector/hsm';
 import {
   BspHState,
@@ -28,13 +28,13 @@ import { setHsmTop } from '../../model';
 export const bspCreatePlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
     console.log('invoke bspCreatePlayerHsm');
-    dispatch(bspCreateHsm('player', BspHsmType.Player));
+    const hsmId: string = dispatch(bspCreateHsm('player', BspHsmType.Player));
 
     dispatch(bspCreateHState('top', BspStateType.Top, 'player', ''));
     const stTop: BspHState | null = getHStateById(getState(), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
 
-    dispatch(setHsmTop('player', stTopId));
+    dispatch(setHsmTop(hsmId, stTopId));
 
     dispatch(bspCreateHState('player', BspStateType.Player, 'player', stTopId));
     const stPlayer: BspHState = getHStateById(getState(), 'player') as BspHState;
@@ -46,11 +46,14 @@ export const bspCreatePlayerHsm = (): any => {
 };
 
 export const bspInitializePlayerHsm = (): any => {
-  return ((dispatch: any) => {
+  return ((dispatch: any, getState: any) => {
     console.log('invoke bspInitializePlayerHsm');
-    dispatch(bspInitializeHsm(
-      'player',
-      initializePlayerStateMachine));
+    const playerHsm = getHsmByName(getState(), 'player');
+    if (!isNil(playerHsm)) {
+      dispatch(bspInitializeHsm(
+        playerHsm.id,
+        initializePlayerStateMachine));
+      }
   });
 };
 

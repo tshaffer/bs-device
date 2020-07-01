@@ -1,8 +1,6 @@
 /** @module Types:base */
-import {
-  Action,
-  Dispatch,
-} from 'redux';
+import { Action } from 'redux';
+import { Dispatch } from 'redux';
 
 import { DmState } from '@brightsign/bsdatamodel';
 import { BspHsmState } from './hsm';

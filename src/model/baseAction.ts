@@ -1,10 +1,9 @@
 /** @module Model:base */
 
-import {
-  Action,
-  Dispatch,
-  ActionCreator,
-} from 'redux';
+import { Action } from 'redux';
+import { Dispatch } from 'redux';
+import { ActionCreator } from 'redux';
+
 import { BsBspModelState } from '../type';
 
 // -----------------------------------------------------------------------

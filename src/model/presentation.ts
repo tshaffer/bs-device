@@ -7,7 +7,7 @@ import {
   BspSchedule,
 } from '../type';
 import { isObject } from 'lodash';
-import { ArSyncSpec } from '../..';
+import { ArSyncSpec } from '../type';
 
 export const UPDATE_PRESENTATION_DATA = 'UPDATE_PRESENTATION_DATA';
 export const UPDATE_PRESENTATION_PLATFORM = 'UPDATE_PRESENTATION_PLATFORM';

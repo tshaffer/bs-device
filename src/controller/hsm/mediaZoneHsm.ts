@@ -24,7 +24,7 @@ import { BspHsm } from '../../type';
 import { getHsmById, getHStateById } from '../../selector/hsm';
 import { setActiveHState, setHsmData } from '../../model';
 
-export const bspCreateMediaZoneHsm = (hsmId: string, hsmType: string, bsdmZone: DmZone): BsBspVoidThunkAction => {
+export const bspCreateMediaZoneHsm = (hsmName: string, hsmType: string, bsdmZone: DmZone): BsBspVoidThunkAction => {
   return ((dispatch: any, getState: any) => {
     console.log('invoke bspCreateZoneHsm');
 
@@ -38,7 +38,7 @@ export const bspCreateMediaZoneHsm = (hsmId: string, hsmType: string, bsdmZone: 
       mediaStateIdToHState: {},
     };
 
-    dispatch(bspCreateZoneHsm(hsmId, hsmType, hsmData));
+    const hsmId: string = dispatch(bspCreateZoneHsm(hsmName, hsmType, hsmData));
 
     const bsdm: DmState = dmFilterDmState(getState());
 

@@ -128,7 +128,7 @@ export const startPlayback = (): BsBspVoidThunkAction => {
     const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
     zoneIds.forEach((zoneId: BsDmId) => {
       const bsdmZone: DmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
-      dispatch(bspCreateMediaZoneHsm(zoneId + '-' + bsdmZone.type, bsdmZone.type.toString(), bsdmZone));
+      dispatch(bspCreateMediaZoneHsm(zoneId, bsdmZone.type.toString(), bsdmZone));
     });
 
     const promises: Array<Promise<void>> = [];

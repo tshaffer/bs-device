@@ -4,6 +4,7 @@ import {
   BspHState,
   BspStateType,
   BsBspDispatch,
+  BspHsmType,
 } from '../../type';
 import { isNil } from 'lodash';
 import {
@@ -14,6 +15,7 @@ import {
 } from './playerHSM';
 import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from './mediaZoneHsm';
 import { STImageStateEventHandler } from './imageState';
+import { getHsmById } from '../../selector';
 
 export const hsmConstructorFunction = (hsmId: string): any => {
   return (dispatch: BsBspDispatch) => {
@@ -24,13 +26,17 @@ export const hsmConstructorFunction = (hsmId: string): any => {
 };
 
 export const bspInitialPseudoStateHandler = (hsmId: string) => {
-  return (dispatch: BsBspDispatch) => {
-    if (hsmId === 'player') {
-      return dispatch(initializePlayerStateMachine());
-    } else if (hsmId.indexOf('VideoOrImages') >= 0) {
-      return dispatch(videoOrImagesZoneGetInitialState(hsmId));
-    } else {
-      debugger;
+  return (dispatch: BsBspDispatch, getState: any) => {
+    const hsm = getHsmById(getState(), hsmId);
+    switch (hsm.type) {
+      case BspHsmType.Player:
+        return dispatch(initializePlayerStateMachine());
+      case 'VideoOrImages':
+        // TEDTODO
+        return dispatch(videoOrImagesZoneGetInitialState(hsmId));
+      default:
+        // TEDTODO
+        debugger;
     }
   };
 };

@@ -6,7 +6,7 @@ import {
   // BspHsmType,
 } from '../type';
 import { isNil } from 'lodash';
-import { BspHsmMap } from '../..';
+import { BspHsmMap } from '../type';
 // import { DmMediaState, dmGetMediaStateById, dmFilterDmState } from '@brightsign/bsdatamodel';
 
 // ------------------------------------
@@ -14,6 +14,19 @@ import { BspHsmMap } from '../..';
 // ------------------------------------
 export function getHsmById(state: BsBspState, hsmId: string): BspHsm {
   return state.bsPlayer.hsmState.hsmById[hsmId];
+}
+
+export function getHsmByName(state: BsBspState, hsmName: string): BspHsm | null {
+  const hsmMap: BspHsmMap = getHsms(state);
+  for (const hsmId in hsmMap) {
+    if (hsmMap.hasOwnProperty(hsmId)) {
+      const hsm = hsmMap[hsmId];
+      if (hsm.name === hsmName) {
+        return hsm;
+      }
+    }
+  }
+  return null;
 }
 
 export function getHsms(state: BsBspState): BspHsmMap {

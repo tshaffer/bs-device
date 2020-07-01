@@ -1,9 +1,7 @@
 /** @module Model:base */
 
-import {
-  Reducer,
-  combineReducers
-} from 'redux';
+import { Reducer } from 'redux';
+import { combineReducers } from 'redux';
 import { isNil } from 'lodash';
 import { BsBspModelState } from '../type';
 import {

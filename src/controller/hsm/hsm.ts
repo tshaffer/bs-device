@@ -5,6 +5,7 @@ import {
   BsBspVoidPromiseThunkAction,
   BsBspDispatch,
   BsBspState,
+  BsBspStringThunkAction,
 } from '../../type';
 import { addHsm } from '../../model/hsm';
 import {
@@ -16,22 +17,26 @@ import {
   bspInitialPseudoStateHandler,
   HStateEventHandler
 } from './eventHandler';
+import { newBsBspId } from '../../utility';
 
 export const bspCreateHsm = (
-  hsmId: string,
-  hsmType: string,
-  hsmData?: HsmData,
-) => {
+  name: string,
+  type: string,
+  data?: HsmData,
+): BsBspStringThunkAction => {
   return ((dispatch: BsBspDispatch) => {
     console.log('***** HSM.ts#bspCreateHsm');
+    const hsmId: string = newBsBspId();
     dispatch(addHsm({
       id: hsmId,
-      type: hsmType,
+      name,
+      type,
       initialized: false,
       topStateId: '',
       activeStateId: null,
-      hsmData,
+      hsmData: data,
     }));
+    return hsmId;
   });
 };
 

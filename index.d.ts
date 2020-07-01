@@ -2,10 +2,14 @@
 // Dependencies for this module:
 //   ../../redux
 //   ../../@brightsign/bsdatamodel
+//   ../../@brightsign/bscore
 
-import { Action, Dispatch, ActionCreator } from 'redux';
+import { Action } from 'redux';
+import { Dispatch } from 'redux';
+import { ActionCreator } from 'redux';
 import { Reducer } from 'redux';
 import { DmState } from '@brightsign/bsdatamodel';
+import { BsAssetLocator } from '@brightsign/bscore';
 
 /** @module Model:index */
 
@@ -55,18 +59,24 @@ export function isValidBsBrightSignPlayerModelStateShallow(state: any): boolean;
 export const ADD_HSM: string;
 export const SET_HSM_TOP: string;
 export const SET_HSM_INITIALIZED: string;
+export const SET_HSM_DATA: string;
 export const ADD_HSTATE = "ADD_HSTATE";
 export const SET_ACTIVE_HSTATE = "SET_ACTIVE_HSTATE";
+export const SET_HSTATE_DATA = "SET_HSTATE_DATA";
 export type AddHsmAction = BsBspModelAction<Partial<BspHsm>>;
 export function addHsm(hsm: BspHsm): AddHsmAction;
 export type SetHsmTopAction = BsBspModelAction<{}>;
 export function setHsmTop(hsmId: string, topStateId: string): SetHsmTopAction;
 export type SetHsmInitializedAction = BsBspModelAction<Partial<BspHsm>>;
 export function setHsmInitialized(id: string, initialized: boolean): SetHsmInitializedAction;
+export type SetHsmDataAction = BsBspModelAction<Partial<BspHsm>>;
+export function setHsmData(id: string, hsmData: HsmData): SetHsmDataAction;
 export type SetActiveHStateAction = BsBspModelAction<BspHState | null | any>;
 export function setActiveHState(hsmId: string, activeState: BspHState | null): SetActiveHStateAction;
 export type AddHStateAction = BsBspModelAction<Partial<BspHState>>;
 export function addHState(hState: BspHState): AddHStateAction;
+export type SetHStateDataAction = BsBspModelAction<Partial<BspHState>>;
+export function setHStateData(id: string, hStateData: HStateData): SetHStateDataAction;
 export const hsmReducer: import("redux").Reducer<BspHsmState>;
 /** @private */
 export const isValidHsmState: (state: any) => boolean;
@@ -75,6 +85,9 @@ export const isValidHsmState: (state: any) => boolean;
 export type DeepPartial<T> = {
     [P in keyof T]?: DeepPartial<T[P]>;
 };
+export interface LUT {
+    [key: string]: any;
+}
 export interface BsBspModelState {
     hsmState: BspHsmState;
     presentationData: PresentationDataState;
@@ -89,21 +102,58 @@ export interface BspBaseObject {
 export interface BspMap<T extends BspBaseObject> {
     [id: string]: T;
 }
+export interface BsBspBaseAction extends Action {
+    type: string;
+    payload: {} | null;
+    error?: boolean;
+    meta?: {};
+}
+export interface BsBspAction<T> extends BsBspBaseAction {
+    payload: T;
+}
+export type BsBspDispatch = Dispatch<BsBspState>;
+export type BsBspVoidThunkAction = (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => void;
+export type BsBspStringThunkAction = (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => string;
+export type BsBspVoidPromiseThunkAction = (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => Promise<void>;
+export type BsBspThunkAction<T> = (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => BsBspAction<T>;
+export type BsBspAnyPromiseThunkAction = (dispatch: BsBspDispatch, getState: () => BsBspState, extraArgument: undefined) => Promise<any>;
 
 export type BspHsmMap = BspMap<BspHsm>;
 export type BspHStateMap = BspMap<BspHState>;
 export interface BspHsm {
     id: string;
+    name: string;
     type: BspHsmType;
     topStateId: string;
     activeStateId: string | null;
     initialized: boolean;
+    hsmData?: HsmData;
+}
+export type HsmData = ZoneHsmData | MediaZoneHsmData;
+export interface ZoneHsmData {
+    zoneId: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    initialMediaStateId: string;
+}
+export interface MediaZoneHsmData extends ZoneHsmData {
+    mediaStateIdToHState: LUT;
 }
 export interface BspHState {
     id: string;
     type: BspStateType;
     hsmId: string;
     superStateId: string;
+    hStateData?: HStateData;
+}
+export type HStateData = MediaHStateData;
+export interface MediaHStateData {
+    timeout: any;
+}
+export interface MediaHState extends BspHState {
+    mediaStateId: string;
 }
 export interface HSMStateData {
     nextStateId: string | null;
@@ -122,6 +172,7 @@ export class BspStateType {
     static Player: string;
     static Playing: string;
     static Waiting: string;
+    static Image: string;
 }
 
 export interface ArEventType {
@@ -151,9 +202,6 @@ export interface ArSyncSpec {
 export interface ArFileLUT {
     [fileName: string]: string;
 }
-export interface LUT {
-    [key: string]: any;
-}
 export interface SubscribedEvents {
     [eventKey: string]: BspHState;
 }
@@ -167,5 +215,30 @@ export interface PresentationDataState {
     platform: string;
     srcDirectory: string;
     syncSpec: ArSyncSpec | null;
+    autoSchedule: BspSchedule | null;
+}
+
+export interface BspSchedule {
+    scheduledPresentations: ScheduledPresentation[];
+}
+export interface ScheduledPresentation {
+    presentationToSchedule: ScheduledPresentationFileData;
+    presentationLocator: BsAssetLocator;
+    dateTime: string;
+    duration: number;
+    allDayEveryDay: boolean;
+    recurrence: boolean;
+    recurrencePattern: string;
+    recurrencePatternDaily: string;
+    recurrencePatternDaysOfWeek: number;
+    recurrenceStartDate: string;
+    recurrenceGoesForever: boolean;
+    recurrenceEndDate: string;
+    interruption: boolean;
+}
+export interface ScheduledPresentationFileData {
+    name: string;
+    fileName: string;
+    filePath: string;
 }
 

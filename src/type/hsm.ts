@@ -4,13 +4,14 @@ import {
   BspStateType
 } from './hsmTypes';
 // import { DmMediaState } from '@brightsign/bsdatamodel';
-import { LUT } from '../..';
+import { LUT } from './base';
 
 export type BspHsmMap = BspMap<BspHsm>;
 export type BspHStateMap = BspMap<BspHState>;
 
 export interface BspHsm {
   id: string;
+  name: string;
   type: BspHsmType;
   topStateId: string;
   activeStateId: string | null;
