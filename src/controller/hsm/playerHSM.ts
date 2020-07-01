@@ -28,20 +28,20 @@ import { setHsmTop } from '../../model';
 export const bspCreatePlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
     console.log('invoke bspCreatePlayerHsm');
-    const hsmId: string = dispatch(bspCreateHsm('player', BspHsmType.Player));
+    const playerHsmId: string = dispatch(bspCreateHsm('player', BspHsmType.Player));
 
     dispatch(bspCreateHState('top', BspStateType.Top, 'player', ''));
     const stTop: BspHState | null = getHStateById(getState(), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
 
-    dispatch(setHsmTop(hsmId, stTopId));
+    dispatch(setHsmTop(playerHsmId, stTopId));
 
-    dispatch(bspCreateHState('player', BspStateType.Player, 'player', stTopId));
+    dispatch(bspCreateHState('player', BspStateType.Player, playerHsmId, stTopId));
     const stPlayer: BspHState = getHStateById(getState(), 'player') as BspHState;
 
-    dispatch(bspCreateHState('playing', BspStateType.Playing, 'player', stPlayer.id));
+    dispatch(bspCreateHState('playing', BspStateType.Playing, playerHsmId, stPlayer.id));
 
-    dispatch(bspCreateHState('waiting', BspStateType.Waiting, 'player', stPlayer.id));
+    dispatch(bspCreateHState('waiting', BspStateType.Waiting, playerHsmId, stPlayer.id));
   });
 };
 

@@ -32,8 +32,9 @@ import {
   getSrcDirectory,
   getZoneHsmList,
   getHsms,
-  getHsmById,
-  getActiveStateIdByHsmId
+  // getHsmById,
+  getActiveStateIdByHsmId,
+  getHsmByName
 } from '../selector';
 import {
   BsDmId,
@@ -184,19 +185,18 @@ function dispatchHsmEvent(
 
     const state: BsBspState = getState();
 
-    const playerHsm: BspHsm = getHsmById(state, 'player');
+    const playerHsm: BspHsm | null = getHsmByName(state, 'player');
     if (!isNil(playerHsm)) {
       dispatch(hsmDispatch(event, playerHsm.id, playerHsm.activeStateId));
-    }
-
-    const hsmMap: BspHsmMap = getHsms(state);
-    for (const hsmId in hsmMap) {
-      if (hsmId !== playerHsm.id) {
-        const activeState: BspHState | null = getActiveStateIdByHsmId(state, hsmId);
-        if (!isNil(activeState)) {
-          dispatch(hsmDispatch(event, hsmId, activeState.id));
-        } else {
-          debugger;
+      const hsmMap: BspHsmMap = getHsms(state);
+      for (const hsmId in hsmMap) {
+        if (hsmId !== playerHsm.id) {
+          const activeState: BspHState | null = getActiveStateIdByHsmId(state, hsmId);
+          if (!isNil(activeState)) {
+            dispatch(hsmDispatch(event, hsmId, activeState.id));
+          } else {
+            debugger;
+          }
         }
       }
     }
