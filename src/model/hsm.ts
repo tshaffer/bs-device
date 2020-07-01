@@ -91,6 +91,9 @@ export function setActiveHState(
   hsmId: string,
   activeState: BspHState | null,
 ): SetActiveHStateAction {
+  console.log('setActiveHState');
+  console.log(hsmId);
+  console.log(activeState);
   return {
     type: SET_ACTIVE_HSTATE,
     payload: {
