@@ -44,10 +44,15 @@ export interface BspHState {
   superStateId: string;
   hStateData?: HStateData;
 }
-export type HStateData = MediaHStateData;
+export type HStateData = PlayerHStateData | MediaHStateData;
+
+export interface PlayerHStateData {
+  name: string;
+}
 
 export interface MediaHStateData {
-  timeout: any;
+  mediaStateId: string;
+  timeout?: any;
 }
 
 export interface MediaHState extends BspHState {

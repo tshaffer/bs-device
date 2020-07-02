@@ -1,24 +1,24 @@
-import { BspHState } from '../../type/hsm';
+import { BspHState, HStateData } from '../../type/hsm';
 import { addHState } from '../../model';
 import { BsBspDispatch, BsBspStringThunkAction } from '../../type';
 import { newBsBspId } from '../../utility';
 
 export const bspCreateHState = (
-  id: string,
   type: string,
   hsmId: string,
   superStateId: string,
+  hStateData?: HStateData,
 ): BsBspStringThunkAction => {
   return ((dispatch: BsBspDispatch) => {
-    const generatedId: string = newBsBspId();
-    console.log('hStateId = ', generatedId);
+    const id: string = newBsBspId();
     const hState: BspHState = {
       id,
       type,
       hsmId,
       superStateId,
+      hStateData,
     };
     dispatch(addHState(hState));
-    return generatedId;
+    return id;
   });
 };

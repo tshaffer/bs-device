@@ -9,8 +9,8 @@ import {
   startPlayback,
 } from '../playbackEngine';
 import {
-  // getHsmById,
-  getHStateById, getHsmByName
+  getHsmByName,
+  getHStateByName,
 } from '../../selector/hsm';
 import {
   BspHState,
@@ -30,18 +30,30 @@ export const bspCreatePlayerHsm = (): any => {
     console.log('invoke bspCreatePlayerHsm');
     const playerHsmId: string = dispatch(bspCreateHsm('player', BspHsmType.Player));
 
-    dispatch(bspCreateHState('top', BspStateType.Top, 'player', ''));
-    const stTop: BspHState | null = getHStateById(getState(), 'top');
+    dispatch(bspCreateHState(
+      BspStateType.Top,
+      'player',
+      '',
+      {
+        name: 'top',
+      }));
+    const stTop: BspHState | null = getHStateByName(getState(), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
 
     dispatch(setHsmTop(playerHsmId, stTopId));
 
-    dispatch(bspCreateHState('player', BspStateType.Player, playerHsmId, stTopId));
-    const stPlayer: BspHState = getHStateById(getState(), 'player') as BspHState;
+    dispatch(bspCreateHState(BspStateType.Player, playerHsmId, stTopId, {
+      name: 'player',
+    }));
+    const stPlayer: BspHState = getHStateByName(getState(), 'player') as BspHState;
 
-    dispatch(bspCreateHState('playing', BspStateType.Playing, playerHsmId, stPlayer.id));
+    dispatch(bspCreateHState(BspStateType.Playing, playerHsmId, stPlayer.id, {
+      name: 'playing',
+    }));
 
-    dispatch(bspCreateHState('waiting', BspStateType.Waiting, playerHsmId, stPlayer.id));
+    dispatch(bspCreateHState(BspStateType.Waiting, playerHsmId, stPlayer.id, {
+      name: 'waiting',
+    }));
   });
 };
 
@@ -53,7 +65,7 @@ export const bspInitializePlayerHsm = (): any => {
       dispatch(bspInitializeHsm(
         playerHsm.id,
         initializePlayerStateMachine));
-      }
+    }
   });
 };
 
@@ -66,7 +78,7 @@ export const initializePlayerStateMachine = (): BsBspAnyPromiseThunkAction => {
     return dispatch(restartPlayback(''))
       .then(() => {
         console.log('return from invoking playerStateMachine restartPlayback');
-        return Promise.resolve(getHStateById(getState(), 'playing'));
+        return Promise.resolve(getHStateByName(getState(), 'playing'));
         //     return Promise.resolve(this.stPlaying);
       });
   };
@@ -127,7 +139,7 @@ export const STWaitingEventHandler = (
       console.log(hState.id + ': TRANSITION_TO_PLAYING event received');
       // const hsmId: string = hState.hsmId;
       // const hsm: BspHsm = getHsmById(getState(), hsmId);
-      const stPlayingState: BspHState | null = getHStateById(getState, 'Playing');
+      const stPlayingState: BspHState | null = getHStateByName(getState, 'Playing');
       if (!isNil(stPlayingState)) {
         stateData.nextStateId = stPlayingState.id;
         return 'TRANSITION';

@@ -3,11 +3,11 @@ import {
   BsBspVoidThunkAction,
   BsBspDispatch,
   ArEventType,
-  HStateData,
   HSMStateData,
   MediaHState,
   BspHsm,
   MediaZoneHsmData,
+  MediaHStateData,
 } from '../../type';
 import {
   DmState,
@@ -51,7 +51,11 @@ export const mediaHStateEventHandler = (
     console.log('mediaHStateEventHandler');
 
     const mediaState: DmMediaState = dmGetMediaStateById(
-      dmFilterDmState(getState()), { id: hState.id }) as DmMediaState;
+      dmFilterDmState(getState()),
+      { id: (hState.hStateData as MediaHStateData).mediaStateId }) as DmMediaState;
+    if (isNil(mediaState)) {
+      debugger;
+    }
 
     const matchedEvent: DmcEvent | null = getMatchedEvent(mediaState, event);
 
@@ -93,23 +97,27 @@ const executeEventMatchAction = (
 
     const mediaZoneHsmData: MediaZoneHsmData = zoneHsm.hsmData as MediaZoneHsmData;
 
-    let targetHSMState: MediaHState = mediaZoneHsmData.mediaStateIdToHState[targetMediaStateId];
-    if (!isNil(targetHSMState)) {
+    let targetHState: MediaHState = mediaZoneHsmData.mediaStateIdToHState[targetMediaStateId];
+    if (!isNil(targetHState)) {
 
       // check to see if target of transition is a superState
       const targetMediaState: DmMediaState | null = dmGetMediaStateById(
-        dmFilterDmState(state), { id: targetHSMState.id });
+        dmFilterDmState(state),
+        {
+          id: (targetHState.hStateData! as MediaHStateData).mediaStateId,
+        }
+      );
       if (!isNil(targetMediaState)) {
         if (targetMediaState.contentItem.type === ContentItemType.SuperState) {
           const superStateContentItem = targetMediaState.contentItem as DmSuperStateContentItem;
           const initialMediaStateId = superStateContentItem.initialMediaStateId;
-          targetHSMState = mediaZoneHsmData.mediaStateIdToHState[initialMediaStateId];
+          targetHState = mediaZoneHsmData.mediaStateIdToHState[initialMediaStateId];
         }
       } else {
         debugger;
       }
 
-      stateData.nextStateId! = targetHSMState.id;
+      stateData.nextStateId! = targetHState.id;
       return 'TRANSITION';
     }
   }
@@ -138,11 +146,17 @@ export const mediaHStateExitHandler = (
 
   return (dispatch: BsBspDispatch, getState: () => BsBspState) => {
     console.log('mediaHStateExitHandler');
-    const hStateData: HStateData | null = getHStateData(getState(), hStateId);
+    const hStateData: MediaHStateData | null = getHStateData(getState(), hStateId) as MediaHStateData;
     if (!isNil(hStateData) && !isNil(hStateData.timeout)) {
       clearTimeout(hStateData.timeout);
       // TEDTODO - is it okay to dispatching an action inside of a whatever
-      dispatch(setHStateData(hStateId, { timeout: null }));
+      dispatch(setHStateData(hStateId,
+        {
+          // TEDTODO - add the ability to set individual data items
+          mediaStateId: hStateData.mediaStateId,
+          timeout: null,
+        }
+      ));
     }
   };
 };
@@ -160,7 +174,11 @@ export const launchTimer = (
     // at least part of this will move somwhere else
     const bsdm: DmState = getState().bsdm;
 
-    const eventIds: BsDmId[] = dmGetEventIdsForMediaState(bsdm, { id: hState.id });
+    const eventIds: BsDmId[] = dmGetEventIdsForMediaState(
+      bsdm,
+      {
+        id: (hState.hStateData as MediaHStateData).mediaStateId
+      });
     for (const eventId of eventIds) {
       const event: DmEvent = dmGetEventStateById(bsdm, { id: eventId }) as DmEvent;
       if (event.type === EventType.Timer) {
@@ -170,7 +188,10 @@ export const launchTimer = (
             hState,
           };
           const timeout = setTimeout(timeoutHandler, interval * 1000, timeoutEventCallbackParams);
-          dispatch(setHStateData(hState.id, { timeout }));
+          dispatch(setHStateData(hState.id, {
+            mediaStateId: (hState.hStateData as MediaHStateData).mediaStateId,
+            timeout,
+          }));
         }
       }
     }

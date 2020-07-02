@@ -98,11 +98,13 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
   render() {
 
-    const mediaStateId: string = this.props.activeMediaStateId;
-    if (!isString(mediaStateId) || mediaStateId.length === 0) {
+    // TEDTODO - rename one of these. that is, either change activeMediaStateId to ?
+    // or actually supply the mediaStateId.
+    const hStateId: string = this.props.activeMediaStateId;
+    if (!isString(hStateId) || hStateId.length === 0) {
       return null;
     }
-    const mediaState: DmMediaState = dmGetMediaStateById(this.props.bsdm, { id: mediaStateId }) as DmMediaState;
+    const mediaState: DmMediaState = dmGetMediaStateById(this.props.bsdm, { id: hStateId }) as DmMediaState;
     const contentItem: DmDerivedContentItem = mediaState.contentItem;
 
     switch (contentItem.type) {

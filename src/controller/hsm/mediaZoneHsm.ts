@@ -8,26 +8,21 @@ import {
   dmGetMediaStateById,
   BsDmId,
   dmGetInitialMediaStateIdForZone,
-  // dmGetInitialMediaStateIdForZone
 } from '@brightsign/bsdatamodel';
 import {
-  // HsmData,
   MediaZoneHsmData,
   BspHState,
   BsBspVoidThunkAction,
-  // MediaHState
 } from '../../type';
 import { ContentItemType } from '@brightsign/bscore';
 import { bspCreateImageState } from './imageState';
 import { isNil } from 'lodash';
 import { BspHsm } from '../../type';
-import { getHsmById, getHStateById } from '../../selector/hsm';
+import { getHsmById, getHStateById, getHStateByMediaStateId } from '../../selector/hsm';
 import { setActiveHState, setHsmData } from '../../model';
 
 export const bspCreateMediaZoneHsm = (hsmName: string, hsmType: string, bsdmZone: DmZone): BsBspVoidThunkAction => {
   return ((dispatch: any, getState: any) => {
-    console.log('invoke bspCreateZoneHsm');
-
     const hsmData: MediaZoneHsmData = {
       zoneId: bsdmZone.id,
       x: bsdmZone.position.x,
@@ -46,7 +41,7 @@ export const bspCreateMediaZoneHsm = (hsmName: string, hsmType: string, bsdmZone
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
       dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
-      const hState: BspHState | null = getHStateById(getState(), bsdmMediaState.id);
+      const hState: BspHState | null = getHStateByMediaStateId(getState(), bsdmMediaState.id);
       if (!isNil(hState)) {
         hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
         dispatch(setHsmData(hsmId, hsmData));
@@ -88,7 +83,7 @@ export const videoOrImagesZoneConstructor = (hsmId: string): BsBspVoidThunkActio
       dmGetInitialMediaStateIdForZone(bsdm, { id: hsm.hsmData!.zoneId });
     if (!isNil(initialMediaStateId)) {
       const initialMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: initialMediaStateId }) as DmMediaState;
-      activeState = getHStateById(getState(), initialMediaState.id);
+      activeState = getHStateByMediaStateId(getState(), initialMediaState.id);
     }
 
     dispatch(setActiveHState(hsmId, activeState));

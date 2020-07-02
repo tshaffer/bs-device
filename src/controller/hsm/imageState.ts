@@ -17,10 +17,12 @@ export const bspCreateImageState = (
 ): BsBspVoidThunkAction => {
   return ((dispatch: BsBspDispatch) => {
     dispatch(bspCreateHState(
-      mediaState.id,
       BspStateType.Image,
       hsmId,
       superStateId,
+      {
+        mediaStateId: mediaState.id,
+      },
     ));
   });
 };
