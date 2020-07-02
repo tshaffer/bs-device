@@ -18,9 +18,17 @@ import { STImageStateEventHandler } from './imageState';
 import { getHsmById } from '../../selector';
 
 export const hsmConstructorFunction = (hsmId: string): any => {
-  return (dispatch: BsBspDispatch) => {
-    if (hsmId.indexOf('VideoOrImages') >= 0) {
-      return dispatch(videoOrImagesZoneConstructor(hsmId));
+  return (dispatch: BsBspDispatch, getState: any) => {
+    const hsm = getHsmById(getState(), hsmId);
+    if (!isNil(hsm)) {
+      switch (hsm.type) {
+        // TEDTODO
+        case 'VideoOrImages': {
+          return dispatch(videoOrImagesZoneConstructor(hsmId));
+        }
+        default:
+          debugger;
+      }
     }
   };
 };

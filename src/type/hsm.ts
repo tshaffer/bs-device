@@ -19,7 +19,7 @@ export interface BspHsm {
   hsmData?: HsmData;
 }
 
-export type HsmData = ZoneHsmData | MediaZoneHsmData  ;
+export type HsmData = ZoneHsmData | MediaZoneHsmData;
 
 export interface ZoneHsmData {
   zoneId: string;

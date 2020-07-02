@@ -86,10 +86,12 @@ export function getZoneHsmList(state: BsBspState): BspHsm[] {
 export function getActiveMediaStateId(state: BsBspState, zoneId: string): string {
   const zoneHsmList: BspHsm[] = getZoneHsmList(state);
   for (const zoneHsm of zoneHsmList) {
-    if (zoneHsm.id.indexOf(zoneId) >= 0) {
-      const hState: BspHState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
-      if (!isNil(hState)) {
-        return hState.id;
+    if (!isNil(zoneHsm.hsmData)) {
+      if (zoneHsm.hsmData.zoneId === zoneId) {
+        const hState: BspHState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
+        if (!isNil(hState)) {
+          return hState.id;
+        }
       }
     }
   }
